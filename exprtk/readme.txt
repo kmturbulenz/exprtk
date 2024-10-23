@@ -82,7 +82,7 @@ arithmetic operations, functions and processes:
 
  (11) Runtime checks:  vector bounds, string bounds, loop iteration,
                        execution-time bounds and compilation process
-                       checkpointing
+                       checkpointing, assert statements
 
  (12) Calculus:        numerical integration and differentiation
 
@@ -131,7 +131,7 @@ The most  recent version  of the C++ Mathematical  Expression  Toolkit
 Library including all updates and tests can be found at the  following
 locations:
 
-  (1) Download:   https://www.partow.net/programming/exprtk/index.html
+  (1) Download: https://www.partow.net/programming/exprtk/index.html
   (2) Mirror Repository: https://github.com/ArashPartow/exprtk
                          https://github.com/ArashPartow/exprtk-extras
 
@@ -166,6 +166,7 @@ of C++ compilers:
   (*) AMD Optimizing C++ Compiler (1.2+)
   (*) Nvidia C++ Compiler (19.x+)
   (*) PGI C++ (10.x+)
+  (*) Circle C++ (circa: b81c37d2bb227c)
   (*) IBM XL C/C++ (9.x+)
   (*) C++ Builder (XE4+)
 
@@ -438,18 +439,18 @@ of C++ compilers:
 |          | matches respectively.                                   |
 |          | (eg: x ilike y or 'a1B2c3D4e5F6g7H' ilike 'a?d*h')      |
 +----------+---------------------------------------------------------+
-| [r0:r1]  | The half-closed interval[r0,r1) of the specified string.|
+| [r0:r1]  | The closed interval[r0,r1] of the specified string.     |
 |          | eg: Given a string x with a value of 'abcdefgh' then:   |
-|          | 1. x[1:5] == 'bcde'                                     |
-|          | 2. x[ :5] == x[:10 / 2] == 'abcde'                      |
+|          | 1. x[1:4] == 'bcde'                                     |
+|          | 2. x[ :4] == x[:8 / 2] == 'abcde'                       |
 |          | 3. x[2 + 1: ] == x[3:] =='defgh'                        |
 |          | 4. x[ : ] == x[:] == 'abcdefgh'                         |
-|          | 5. x[4/2:3+2] == x[2:5] == 'cde'                        |
+|          | 5. x[4/2:3+1] == x[2:4] == 'cde'                        |
 |          |                                                         |
 |          | Note: Both r0 and r1 are assumed to be integers, where  |
 |          | r0 <= r1. They may also be the result of an expression, |
 |          | in the event they have fractional components truncation |
-|          | will be performed. (eg: 1.67 --> 1)                     |
+|          | shall be performed. (eg: 1.67 --> 1)                    |
 +----------+---------------------------------------------------------+
 |  :=      | Assign the value of x to y. Where y is a mutable string |
 |          | or string range and x is either a string or a string    |
@@ -532,30 +533,30 @@ of C++ compilers:
 |          | eg:                                                     |
 |          | switch                                                  |
 |          | {                                                       |
-|          |   case x > (y + z) : 2 * x / abs(y - z);                |
-|          |   case x < 3       : sin(x + y);                        |
-|          |   default          : 1 + x;                             |
+|          |    case x > (y + z) : 2 * x / abs(y - z);               |
+|          |    case x < 3       : sin(x + y);                       |
+|          |    default          : 1 + x;                            |
 |          | }                                                       |
 +----------+---------------------------------------------------------+
 | while    | The structure will repeatedly evaluate the internal     |
 |          | statement(s) 'while' the condition is true. The final   |
-|          | statement in the final iteration will be used as the    |
+|          | statement in the final iteration shall be used as the   |
 |          | return value of the loop.                               |
 |          | eg:                                                     |
 |          | while ((x -= 1) > 0)                                    |
 |          | {                                                       |
-|          |   y := x + z;                                           |
-|          |   w := u + y;                                           |
+|          |    y := x + z;                                          |
+|          |    w := u + y;                                          |
 |          | }                                                       |
 +----------+---------------------------------------------------------+
 | repeat/  | The structure will repeatedly evaluate the internal     |
 | until    | statement(s) 'until' the condition is true. The final   |
-|          | statement in the final iteration will be used as the    |
+|          | statement in the final iteration shall be used as the   |
 |          | return value of the loop.                               |
 |          | eg:                                                     |
 |          | repeat                                                  |
-|          |   y := x + z;                                           |
-|          |   w := u + y;                                           |
+|          |    y := x + z;                                          |
+|          |    w := u + y;                                          |
 |          | until ((x += 1) > 100)                                  |
 +----------+---------------------------------------------------------+
 | for      | The structure will repeatedly evaluate the internal     |
@@ -566,8 +567,8 @@ of C++ compilers:
 |          | eg:                                                     |
 |          | for (var x := 0; (x < n) and (x != y); x += 1)          |
 |          | {                                                       |
-|          |   y := y + x / 2 - z;                                   |
-|          |   w := u + y;                                           |
+|          |    y := y + x / 2 - z;                                  |
+|          |    w := u + y;                                          |
 |          | }                                                       |
 +----------+---------------------------------------------------------+
 | break    | Break terminates the execution of the nearest enclosed  |
@@ -579,12 +580,12 @@ of C++ compilers:
 |          | eg:                                                     |
 |          | while ((i += 1) < 10)                                   |
 |          | {                                                       |
-|          |   if (i < 5)                                            |
-|          |     j -= i + 2;                                         |
-|          |   else if (i % 2 == 0)                                  |
-|          |     break;                                              |
-|          |   else                                                  |
-|          |     break[2i + 3];                                      |
+|          |    if (i < 5)                                           |
+|          |       j -= i + 2;                                       |
+|          |    else if (i % 2 == 0)                                 |
+|          |       break;                                            |
+|          |    else                                                 |
+|          |       break[2i + 3];                                    |
 |          | }                                                       |
 +----------+---------------------------------------------------------+
 | continue | Continue results in the remaining portion of the nearest|
@@ -592,9 +593,9 @@ of C++ compilers:
 |          | eg:                                                     |
 |          | for (var i := 0; i < 10; i += 1)                        |
 |          | {                                                       |
-|          |   if (i < 5)                                            |
-|          |     continue;                                           |
-|          |   j -= i + 2;                                           |
+|          |    if (i < 5)                                           |
+|          |       continue;                                         |
+|          |    j -= i + 2;                                          |
 |          | }                                                       |
 +----------+---------------------------------------------------------+
 | return   | Return immediately from within the current expression.  |
@@ -723,7 +724,7 @@ evaluated using the current value of the element.
 The  example  below demonstrates  the  relationship between variables,
 symbol_table and expression. Note  the variables are modified  as they
 normally would in a program, and when the expression is  evaluated the
-current values assigned to the variables will be used.
+current values assigned to the variables shall be used.
 
    typedef exprtk::symbol_table<double> symbol_table_t;
    typedef exprtk::expression<double>   expression_t;
@@ -762,7 +763,7 @@ current values assigned to the variables will be used.
    }
 
 
-Note02:  Any  variable  reference provided  to  a  given  symbol_table
+Note02: Any  variable  reference  provided  to  a  given  symbol_table
 instance, must have a lifetime at least as long as the lifetime of the
 symbol_table  instance.  In  the  event  the  variable  reference   is
 invalidated  before  the  symbol_table  or  any  dependent  expression
@@ -909,9 +910,9 @@ In the above example the expression is released before the  associated
 symbol_table is cleared of its variables, which resolves the undefined
 behaviour issue noted in the previous example.
 
-Note03:  One  can  register  multiple  symbol_tables  with  a   single
-expression  object. In  the event  an expression  has multiple  symbol
-tables,  and  where  there  exists  conflicts  between  symbols,   the
+Note03: It  is possible  to  register  multiple  symbol_tables  with a
+single  expression object.  In the  event an  expression has  multiple
+symbol tables, and where  there exists conflicts between  symbols, the
 compilation stage  will resolve  the conflicts  based on  the order of
 registration  of  the  symbol_tables to  the  expression.  For a  more
 expansive discussion please review section [17 - Hierarchies Of Symbol
@@ -978,10 +979,21 @@ a false result due to one or more of the following reasons:
   6. The symbol_table instance is in an invalid state
 
 
+Note05: The symbol_table has a method called clear, which when invoked
+will clear  all variables,  vectors, strings  and functions registered
+with the symbol_table instance. If  this method is to be  called, then
+one  must  make  sure  that  all  compiled  expression  instances that
+reference  variables  belonging  to  that  symbol_table  instance  are
+released (aka call  release method on  expression) before calling  the
+clear  method  on  the  symbol_table  instance,  otherwise   undefined
+behaviours will occur.
+
 A further property of symbol tables is that they can be classified  at
-instantiation as either being  mutable (by default) or  immutable. The
-following  demonstrates  construction  of  an  immutable  symbol table
-instance:
+instantiation as either being mutable (by default) or immutable.  This
+property determines if variables,  vectors or strings registered  with
+the symbol  table can  undergo modifications  within expressions  that
+reference  them.  The   following  demonstrates  construction   of  an
+immutable symbol table instance:
 
   symbol_table_t immutable_symbol_table
      (symbol_table_t::symtab_mutability_type::e_immutable);
@@ -996,14 +1008,38 @@ the mutability constraint are the following assignment operators:
   1. Assignment:       :=
   2. Assign operation: +=, -=, *=, /= , %=
 
+   const std::string expression_str = "x += x + 123.456";
 
-The  main reason  for this  functionality is  that, one  may want  the
-immutability properties that come with constness of a variable such as
-scalars, vectors  and strings,  but not  necessarily the  accompanying
-compile time  const-folding optimisations,  that would  result in  the
-value of  the variables  being retrieved  only once  at compile  time,
-causing  external updates  to the  variables to  not be  part of  the
-expression evaluation.
+   symbol_table_t immutable_symbol_table
+      (symbol_table_t::symtab_mutability_type::e_immutable);
+
+   T x = 0.0;
+
+   immutable_symbol_table.add_variable("x" , x);
+
+   expression_t expression;
+   expression.register_symbol_table(immutable_symbol_table);
+
+   parser_t parser;
+
+   parser.compile(expression_str, expression);
+      // Compile error because of assignment to variable x
+
+
+In the above example, variable x is registered to an immutable  symbol
+table,  making it  an immutable  variable within  the context  of any
+expressions that  reference it.  The expression  string being compiled
+uses the addition assignment operator  which will modify the value  of
+variable x.  The compilation  process detects  this semantic violation
+and proceeds to halt compilation and return the appropriate error.
+
+One of the main reasons for  this functionality is that, one may  want
+the immutability  properties that  come with  constness of  a variable
+such  as  scalars,  vectors  and  strings,  but  not  necessarily  the
+accompanying  compile  time  const-folding  optimisations,  that would
+result in  the value  of the  variables being  retrieved only  once at
+compile time, causing external updates to the variables to not be part
+of the expression evaluation.
 
    symbol_table_t immutable_symbol_table
       (symbol_table_t::symtab_mutability_type::e_immutable);
@@ -1016,10 +1052,10 @@ expression evaluation.
    immutable_symbol_table.add_constant("y" , 123.0);
 
    expression_t expression;
-   expression.register_symbol_table(immutabile_symbol_table);
+   expression.register_symbol_table(immutable_symbol_table);
 
    parser_t parser;
-   parser.compile(expression_str, expression)
+   parser.compile(expression_str, expression);
 
    for (; x < 10.0; ++x)
    {
@@ -1034,8 +1070,8 @@ constant and X is a normal variable. Both are registered with a symbol
 table that is immutable. The  expression when compiled will result  in
 the "(y + y)" part being  const-folded at compile time to the  literal
 value of 246. Whereas  the current value of  X, being updated via  the
-for-loop, externally to  the expression and  the symbol table  will be
-available to the expression upon each evaluation.
+for-loop, externally to  the expression and  the symbol table shall be
+observable to the expression upon each evaluation.
 
 
 (2) Expression
@@ -1074,7 +1110,7 @@ Expression:  z := (x + y^-2.345) * sin(pi / min(w - 7.3,v))
                              Variable(w)      Constant(7.3)
 
 
-The above denoted AST will be evaluated in the following order:
+The above denoted AST shall be evaluated in the following order:
 
    (01) Load Variable  (z)        (10) Load Constant  (7.3)
    (02) Load Variable  (x)        (11) Subtraction    (09 & 10)
@@ -1142,7 +1178,7 @@ error status code,  with a more  detailed description of  the error(s)
 and  its  location  within  the  input  provided  by  the  'get_error'
 interface.
 
-Note05: The exprtk::expression and exprtk::symbol_table components are
+Note06: The exprtk::expression and exprtk::symbol_table components are
 reference counted entities. Copy constructing or assigning to or  from
 either component will result in  a shallow copy and a  reference count
 increment,  rather  than  a  complete  replication.  Furthermore   the
@@ -1199,7 +1235,7 @@ The prescribed method for cloning an expression is to compile it  from
 its string  form. Doing so will allow the 'user' to  properly consider
 the exact source of user defined variables and functions.
 
-Note06: The exprtk::parser  is  a  non-copyable  and  non-thread  safe
+Note07: The exprtk::parser  is  a  non-copyable  and  non-thread  safe
 component, and should only be shared via either a reference, a  shared
 pointer  or  a  std::ref  mechanism,  and  considerations  relating to
 synchronisation  taken  into  account  where  appropriate.  The parser
@@ -1291,7 +1327,7 @@ enabled by default. The options and their explanations are as follows:
 
 (1) Replacer (e_replacer)
 Enable replacement of specific  tokens with other tokens.  For example
-the token  "true" of  type symbol  will be  replaced with  the numeric
+the token  "true" of  type symbol  shall be  replaced with the numeric
 token of value one.
 
    (a) (x < y) == true   --->  (x < y) == 1
@@ -1380,7 +1416,7 @@ following are examples of the various transformations that can occur:
    (h) avg(x,y,z) * (2 - 4 / 2)  --->  0
 
 
-Note07: When using strength reduction in conjunction with  expressions
+Note08: When using strength reduction in conjunction with  expressions
 whose inputs or sub-expressions may result in values nearing either of
 the bounds of the underlying  numeric type (eg: double), there  may be
 the  possibility of a decrease in the precision of results.
@@ -1457,7 +1493,7 @@ value. The max size value can be changed via the parser settings.
 In the above  code, the max  local vector size  is set to  one million
 elements. During  compilation  of an expression  if there is  a vector
 definition  where  the  vector  size exceeds  the  max  vector  size a
-compilation error will be emitted.
+compilation error shall be emitted.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -1582,7 +1618,7 @@ noted:
   +-+----------------------+------------------------------+
 
 
-Note08:  In example  6 from  the above  set, it  is  assumed  the user
+Note09: In example  6 from  the above  set, it  is  assumed  the  user
 defined function foo has been  registered as having a side-effect.  By
 default all user defined  functions are assumed to  have side-effects,
 unless they  are configured  in their  constructors to  not have side-
@@ -1605,7 +1641,7 @@ final or last statement.
 
 By default the final statement in an expression will always be present
 regardless of  its side-effect  status, as  it is  the statement whose
-value will be used as the result of the expression.
+value shall be used as the result of the expression.
 
 In order to further explain the actions taken during the DCE  process,
 lets review the following expression:
@@ -1647,7 +1683,7 @@ expression that utilises the function based if-statement.
 
 
 In the  example above,  if the  condition 'y  < z'  is true,  then the
-consequent 'y + 1' will be evaluated, its value will be  returned  and
+consequent 'y + 1' will be evaluated, its value shall be  returned and
 subsequently assigned to the  variable 'x'. Otherwise the  alternative
 '2 *  z' will  be evaluated  and its  value will  be returned. This is
 essentially the  simplest form of  an if-then-else statement. A simple
@@ -1676,10 +1712,10 @@ will return a quiet NaN value as its result.
    x := if (y < z)
         {
            y + 3
-        }
+        };
 
 The two  example expressions  above are  equivalent. If  the condition
-'y < z' is true, the  'x' variable will be  assigned the value of  the
+'y < z' is true, the 'x' variable shall be  assigned the value of  the
 consequent 'y + 3', otherwise it  will be assigned the value of  quiet
 NaN.  As  previously  discussed,  if-statements  are  value  returning
 constructs, and if  not properly terminated  using a semi-colon,  will
@@ -1738,7 +1774,7 @@ as follows:
 In  the case  where  there  is no  final else  statement and  the flow
 through the conditional  arrives at this  final point, the  same rules
 apply to this form of if-statement as to the previous. That is a quiet
-NaN will be  returned as the  result of the  if-statement. Furthermore
+NaN shall be returned as the  result of the  if-statement. Furthermore
 the same requirements of  terminating the statement with  a semi-colon
 apply.
 
@@ -1835,6 +1871,9 @@ zero. The following are examples of variable definitions:
    (c) Initialise z to the expression
        var z := if (max(1, x + y) > 2, w, v);
 
+   (d) Initialise const literal n
+       var n := 12 / 3;
+
 
 (2) Vector Definition
 Vectors are arrays of a common numeric type. The elements in a  vector
@@ -1848,30 +1887,36 @@ zero. The following are examples of vector definitions:
        var x[3] := {};
 
    (c) Initialise all values to given value or expression
-       var x[3] := [ 42 ];
-       var y[3] := [ 123 + 3y + sin(w / z) ];
+       var x[3]   := [ 42 ];
+       var y[x[]] := [ 123 + 3y + sin(w / z) ];
 
-   (d) Initialise the first two values, all other elements to zero
-       var x[3] := { 1 + x[2], sin(y[0] / x[]) + 3 };
+   (d) Initialise all values iota style
+       var v[4] := [ 0 : +1];  //  0,  1,  2,  3
+       var v[5] := [-3 : -2];  // -3, -5, -7, -9, -11
 
-   (e) Initialise the first three (all) values
-       var x[3] := { 1, 2, 3 };
+   (e) Initialise the first two values, all other elements to zero
+       var x[3] := { (1 + x[2]) / x[], (sin(y[0] / x[]) + 3) / x[] };
 
-   (f) Initialise vector from a vector
+   (f) Initialise the first three (all) values
+       const var size := 3;
+       var x[size] := { 1, 2, 3 };
+
+   (g) Initialise vector from a vector
        var x[4] := { 1, 2, 3, 4 };
        var y[3] := x;
+       var w[5] := { 1, 2 }; // 1, 2, 0, 0, 0
 
-   (g) Initialise vector from a smaller vector
+   (h) Initialise vector from a smaller vector
        var x[3] := { 1, 2, 3 };
        var y[5] := x;   // 1, 2, 3, ??, ??
 
-   (h) Non-initialised vector
+   (i) Non-initialised vector
        var x[3] := null; // ?? ?? ??
 
-   (i) Error as there are too many initialisers
+   (j) Error as there are too many initialisers
        var x[3] := { 1, 2, 3, 4 };
 
-   (j) Error as a vector of size zero is not allowed.
+   (k) Error as a vector of size zero is not allowed.
        var x[0];
 
 
@@ -1913,7 +1958,7 @@ examples of string variable definitions:
 Variable and vector  definitions have a  return value. In  the case of
 variable definitions, the value  to which the variable  is initialised
 will be returned. Where as for vectors, the value of the first element
-(eg: v[0]) will be returned.
+(eg: v[0]) shall be returned.
 
    8 == ((var x := 7;) + 1)
    4 == (var y[3] := {4, 5, 6};)
@@ -1938,7 +1983,7 @@ vector expression can be assigned to a variable.
       x := y + 1;
 
 
-Note09: During the expression compilation phase, tokens are classified
+Note10: During the expression compilation phase, tokens are classified
 based on the following priorities:
 
    (a) Reserved keywords or operators (+, -, and, or, etc)
@@ -1977,16 +2022,16 @@ with vectors:
        avg, max, min, mul,  dot, dotk, sum, sumk,  count, all_true,
        all_false, any_true, any_false
    (h) Transformation operations:
-       copy, diff, rotate-left/right, shift-left/right, sort,
+       copy, diff, reverse, rotate-left/right, shift-left/right, sort,
        nth_element
    (i) BLAS-L1:
        axpy, axpby, axpyz, axpbyz, axpbz
 
-Note10: When one of the above  described operations is being performed
+Note11: When one of the above  described operations is being performed
 between two  vectors, the  operation will  only span  the size  of the
 smallest vector.  The elements  of the  larger vector  outside of  the
 range will  not be included. The  operation  itself will  be processed
-element-wise over values the smaller of the two ranges.
+element-wise over values of the smaller of the two ranges.
 
 The  following  simple  example  demonstrates  the  vector  processing
 capabilities by computing the dot-product of the vectors v0 and v1 and
@@ -2006,11 +2051,11 @@ the previously mentioned dot-product computation expression:
 
    for (var i := 0; i < min(v0[],v1[]); i += 1)
    {
-     v0dotv1 += (v0[i] * v1[i]);
+      v0dotv1 += (v0[i] * v1[i]);
    }
 
 
-Note11: When the aggregate or reduction  operations denoted above  are
+Note12: When the aggregate or reduction  operations denoted above  are
 used  in conjunction with a  vector or  vector  expression, the return
 value is not a vector but rather a single value.
 
@@ -2130,17 +2175,17 @@ size of the vector at that point in time. The expression is  evaluated
 eight times (size of vector times), where upon each iteration the size
 of the vector is changed with values ranging from one to eight.
 
-Note12: When modifying the size of  a vector, the  new size must be at
+Note13: When modifying the size of  a vector, the  new size must be at
 least one  or larger  and must  not exceed  the original  size of  the
 vector_view when it was instantiated.
 
-Note13:  The  lifetime  of  any  parser,  symbol_table  or  expression
+Note14: The  lifetime  of  any  parser,  symbol_table   or  expression
 instance must  not exceed  that of  any vector_view  instance that has
 been registered  with it.  Furthermore the  lifetime of  a vector_view
 must not exceed that of the underlying vector instance it is
 associated with.
 
-Note14: In a multi-threaded context the  rebase function should not be
+Note15: In a multi-threaded context the  rebase function should not be
 called during associated expression  evaluation, as this will  lead to
 undefined behaviour (eg: torn reads and writes).
 
@@ -2155,7 +2200,7 @@ inputs but will always return a single value of the underlying numeric
 type.
 
 During  expression  compilation  when required  the  reference  to the
-function  will be  obtained from  the associated  symbol_table and  be
+function  shall be obtained from  the associated  symbol_table and  be
 embedded into the expression.
 
 There are five types of function interface:
@@ -2373,7 +2418,7 @@ parameters in the following sequence:
    (3) Scalar
    (4) Scalar
 
-Note15: The 'Z' or  no parameter option may not be used in conjunction
+Note16: The 'Z' or  no parameter option may not be used in conjunction
 with any other type option in a parameter sequence. When  incorporated
 in the parameter sequence list, the no parameter option indicates that
 the function may be invoked  without any parameters being passed.  For
@@ -2397,7 +2442,7 @@ the string return type function operator being explicitly overridden:
    template <typename T>
    struct toupper final : public exprtk::igeneric_function<T>
    {
-      typedef exprtk::igeneric_function<T> igenfunct_t
+      typedef exprtk::igeneric_function<T> igenfunct_t;
       typedef typename igenfunct_t::generic_type generic_t;
       typedef typename igenfunct_t::parameter_list_t parameter_list_t;
       typedef typename generic_t::string_view string_t;
@@ -2420,7 +2465,7 @@ the string return type function operator being explicitly overridden:
 
          return T(0);
       }
-   };d
+   };
 
 
 In the example above the  generic function 'toupper' expects only  one
@@ -2437,7 +2482,7 @@ the toupper function registered as the symbol 'toupper' is as follows:
    "'ABCDEF' == toupper('aBc') + toupper('DeF')"
 
 
-Note16: When  adding a  string type  returning generic  function to  a
+Note17: When  adding a  string type  returning generic  function to  a
 symbol  table  the  'add_function'  is  invoked.  The  example   below
 demonstrates how this can be done:
 
@@ -2448,7 +2493,7 @@ demonstrates how this can be done:
    symbol_table.add_function("toupper",tu);
 
 
-Note17: Two further refinements to the  type checking facility are the
+Note18: Two further refinements to the  type checking facility are the
 possibilities  of  a variable  number  of common  types  which can  be
 accomplished by using a wildcard '*' and a special 'any type' which is
 done using  the '?'  character. It  should be  noted that the wildcard
@@ -2605,18 +2650,22 @@ returning a single scalar value and consuming up to six parameters  as
 input.
 
 All composited functions are registered with a symbol table,  allowing
-them to call other functions that have been registered with the symbol
-table instance. Furthermore the  functions can be recursive  in nature
-due to the inherent  function prototype forwarding that  occurs during
-construction.  The following  example  defines, by using two different
-methods, composited functions and implicitly registering the functions
-with the denoted symbol table.
+them  to  call  other  functions  and  use  variables  that  have been
+registered with the symbol  table instance. Furthermore the  functions
+can be  recursive in  nature due  to the  inherent function  prototype
+forwarding  that  occurs during  construction.  The following  example
+defines,  by using  two different  methods, composited  functions and
+implicitly registering the functions with the denoted symbol table.
 
    typedef exprtk::symbol_table<T>         symbol_table_t;
    typedef exprtk::function_compositor<T>  compositor_t;
    typedef typename compositor_t::function function_t;
 
+   T avogadro = T(6.022e23);
+
    symbol_table_t symbol_table;
+
+   symbol_table.add_constant("avogadro", avogadro);
 
    compositor_t compositor(symbol_table);
 
@@ -2626,7 +2675,7 @@ with the denoted symbol table.
       .vars("v1", "v2")
       .expression
       (
-         " 1 + cos(v1 * v2) / 3; "
+         " 1 + cos(v1 * v2) / avogadro; "
       ));
 
    // Define function koo1(x, y, z) { ... }
@@ -2636,8 +2685,53 @@ with the denoted symbol table.
       .var("x").var("y").var("z")
       .expression
       (
-         "1 + cos(x * y) / z;"
+         "1 + koo0(x * y, 3) / z;"
       ));
+
+
+A function compositor can also be instantiated without a symbol_table.
+When this is the case an internal symbol_table is used for holding the
+references to the composited functions.
+
+   compositor_t compositor;
+
+   // Define function koo2(v1, v2) { ... }
+   compositor.add(
+      function_t("koo2"),
+      .vars("v1", "v2", "v3")
+      .expression
+      ( " abs(v1 * v2) / v3; " ));
+
+
+When wanting to  reference functions from  the compositor above  in an
+expression, the compositor's symbol_table  will need to be  registered
+with the expression  prior to compilation,  as is demonstrated  in the
+following code:
+
+   expression_t expression;
+   .
+   .
+   expression.register_symbol_table(compositor.symbol_table());
+
+
+In the situation where  more than one symbol table's contents will  be
+required by the functions  being composited, then those  symbol tables
+can be registered as auxiliary symbol tables with the compositor:
+
+   symbol_table_t global_symbol_table;
+   symbol_table_t local_symbol_table;
+   .
+   .
+   .
+   compositor_t compositor;
+
+   compositor.add_auxiliary_symtab(global_symbol_table);
+   compositor.add_auxiliary_symtab(local_symbol_table );
+
+Note19: In the event, that two or more symbol tables contain similarly
+named  variables,  vectors,  strings   or  functions,  the  order   of
+registration with the compositor shall determine the symbol table from
+which the target symbol will be referenced.
 
 
 (7) Using Functions In Expressions
@@ -2681,9 +2775,9 @@ The following demonstrates how all the pieces are put together:
 
    const std::string expression_str =
       " if (foo(1,2,3) + boo(1) > boo(1/2, 2/3, 3/4, 4/5)) "
-      "   koo(3,4);                                        "
+      "    koo(3,4);                                       "
       " else                                               "
-      "   too(2 * v1 + v2 / 3, 'abcdef'[2:4], 3.3);        "
+      "    too(2 * v1 + v2 / 3, 'abcdef'[2:4], 3.3);       "
       "                                                    ";
 
    parser_t parser;
@@ -2744,7 +2838,7 @@ carried out:
    };
 
 
-Note18: For the igeneric_function  type, there  also needs to be a 'Z'
+Note20: For the igeneric_function  type, there  also needs to be a 'Z'
 parameter sequence  defined in order for the  zero parameter  trait to
 properly take effect otherwise a compilation error will occur.
 
@@ -2789,6 +2883,22 @@ registered with the given symbol_table instance:
       "compute3",
       [](double v0, double v1, double v2) -> double
       { return v0 / v1 + v2; });
+
+
+Note21: Similar to  variables registered with  symbol_table instances,
+for any of the following function providers:
+
+   1. ifunction
+   2. ivararg_function
+   3. igeneric_function
+   4. function_compositor
+   5. Free function
+   7. Lambda
+
+
+Their instance lifetimes must exceed the symbol_tables and expressions
+they are  registered with.  In the  event that  is not  the case,  the
+expected result shall be undefined behaviour.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -2879,7 +2989,7 @@ dependents of the given expression:
    }
 
 
-Note19: The 'symbol_t'  type is a  std::pair comprising of  the symbol
+Note22: The 'symbol_t'  type is a  std::pair comprising of  the symbol
 name (std::string) and the associated type of the symbol as denoted by
 the cases in the switch statement.
 
@@ -2898,7 +3008,7 @@ associated assignments:
    (5) None          x + y + z
 
 
-Note20: In  expression 4,  both variables  'w' and  'z' are denoted as
+Note23: In  expression 4,  both variables  'w' and  'z' are denoted as
 being assignments even though only one of them can ever be modified at
 the time of evaluation. Furthermore the determination of which of  the
 two variables the modification will occur upon can only be known  with
@@ -2933,7 +3043,7 @@ of the DEC in determining the 'assignments' of the given expression:
    }
 
 
-Note21: The  assignments will  only consist  of variable  types and as
+Note24: The  assignments will  only consist  of variable  types and as
 such will not contain symbols denoting functions.
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3262,7 +3372,7 @@ after which the expression itself can be evaluated.
    expression.value();
 
 
-Note22: As previously  mentioned the  default  USR  will automatically
+Note25: As previously  mentioned the  default  USR  will automatically
 assume any unknown symbol to be a valid scalar variable, and will then
 proceed to add said symbol  as a variable to the  primary symbol_table
 of the associated expression during the compilation process. However a
@@ -3338,19 +3448,19 @@ simple user defined USR:
 
 
 In  the  example  above,  a user  specified  USR  is  defined, and  is
-registered with the parser  enabling the USR functionality.  Then when
-an unknown symbol is  encountered during the compilation  process, the
-USR's process method will be invoked. The USR in the example will only
-'accept' unknown symbols that have  a prefix of 'var_' as  being valid
-variables,  all other  unknown symbols  will result  in a  compilation
-error being raised.
+registered   with   the  parser   enabling   the  USR   functionality.
+Subsequently during the compilation process when an unknown symbol  is
+encountered, the USR's process method will be invoked. The USR in  the
+example  will only  'accept' unknown  symbols  that  have a  prefix of
+'var_' as being valid variables, all other unknown symbols will result
+in a compilation error being raised.
 
 In the example above  the callback of the  USR that is invoked  during
 the unknown symbol resolution process only allows for scalar variables
 to be defined and resolved -  as that is the simplest and  most common
 form.
 
-There  is  also  an  extended version  of  the  callback  that can  be
+There is a further  extended  version  of  the  callback  that  can be
 overridden that will allow for  more control and choice over  the type
 of symbol being  resolved. The following  is an example  definition of
 said extended callback:
@@ -3409,14 +3519,14 @@ table will now have the previously detected unknown symbol registered,
 it will be correctly resolved  and the general parsing processing  can
 then resume as per normal.
 
-Note23: In order to have  the USR's extended mode callback  be invoked
+Note26: In order to have  the USR's extended mode callback  be invoked
 it is necessary to pass  the e_usrmode_extended enum value during  the
 constructor of the user defined USR.
 
-Note24: The primary symbol table for an expression is the first symbol
+Note27: The primary symbol table for an expression is the first symbol
 table to be registered with that instance of the expression.
 
-Note25: For a successful symbol resolution using the normal USR all of
+Note28: For a successful symbol resolution using the normal USR all of
 the following are required:
 
    (1) Only if successful shall the process method return TRUE
@@ -3426,7 +3536,7 @@ the following are required:
          (*) e_usr_variable_type
          (*) e_usr_constant_type
 
-Note26: For a successful symbol resolution using the extended USR  all
+Note29: For a successful symbol resolution using the extended USR  all
 of the following are required:
 
    (1) Only if successful shall the process method return TRUE
@@ -3746,7 +3856,7 @@ assignment operator:
       .compile("x += 3",expression); // success
 
 
-Note27:  In the  event of  a  base  function being  disabled, one  can
+Note30: In the  event of  a  base  function  being  disabled, one  can
 redefine  the  base  function  using  the  standard  custom   function
 definition process.  In the  following example  the 'sin'  function is
 disabled then redefined as a function taking degree input.
@@ -3811,11 +3921,11 @@ expression will return normally.
 
    const std::string expression_string =
       " if (x < y)                                   "
-      "   return [x + 1,'return-call 1'];            "
+      "    return [x + 1,'return-call 1'];           "
       " else if (x > y)                              "
-      "   return [y / 2, y + 1, 'return-call 2'];    "
+      "    return [y / 2, y + 1, 'return-call 2'];   "
       " else if (equal(x,y))                         "
-      "   x + y;                                     "
+      "    x + y;                                    "
       " return [x, y, x + y, x - y, 'return-call 3'] ";
 
    typedef exprtk::symbol_table<double> symbol_table_t;
@@ -3838,7 +3948,7 @@ expression will return normally.
 
    T result = expression.value();
 
-   if (expression.results().count())
+   if (expression.return_invoked())
    {
       typedef exprtk::results_context<T> results_context_t;
       typedef typename results_context_t::type_store_t type_t;
@@ -3868,7 +3978,14 @@ expression will return normally.
    }
 
 
-Note28: Processing of  the return  results is  similar to  that of the
+In the above example, there are three possible "return" points and one
+regular result. Only one of the four paths can ever be realised. Hence
+it is necessary to capture  the result of the expression  value method
+call. In the event,  the call to return_invoked  is not true then  the
+non-return code  path was  executed and  the result  of the evaluation
+will be the result of the expression's value method.
+
+Note31: Processing of  the return  results is  similar to  that of the
 generic function call parameters.
 
 The results_context provides getter  methods for each of  the possible
@@ -3879,10 +3996,10 @@ return types (scalar, vector and string) and can be used as follows:
    typedef exprtk::parser<T>       parser_t;
 
    const std::string expression_str =
-      " if (x > y)                                 "
-      "   return [1];                              "
-      " else                                       "
-      "   return [ x, x + y, 2 * v, s + 'world' ]; ";
+      " if (x > y)                                  "
+      "    return [1];                              "
+      " else                                        "
+      "    return [ x, x + y, 2 * v, s + 'world' ]; ";
 
    symbol_table_t symbol_table;
    expression_t   expression;
@@ -3959,7 +4076,7 @@ two result variables are defined to hold the values named result0  and
 result1 respectively. The first is of scalar type (double), the second
 is of  string type.  Once the  expression has  been evaluated, the two
 variables will have been updated  with the new result values,  and can
-then be further utilised from within the calling program.
+then be further utilised from within the calling host program.
 
 There will be times when  an expression may have multiple  exit paths,
 where not all the paths will be return-statement based. The  following
@@ -4105,7 +4222,7 @@ demonstrated by the following example:
    }
 
 
-Note29: There are five distinct error modes in ExprTk which denote the
+Note32: There are five distinct error modes in ExprTk which denote the
 class of an error. These classes are as follows:
 
    (a) Syntax
@@ -4145,7 +4262,7 @@ find,  within  the  symbol_table,  symbols  representing  variables or
 functions, to being unable to create new variables in the symbol_table
 via the 'unknown symbol resolver' mechanism.
 
-Note30: The function compositor  also supports  error message handling
+Note33: The function compositor  also supports  error message handling
 similar to how it is  done via the parser. The  following demonstrates
 how after a failed function  composition the associated errors can  be
 enumerated.
@@ -4244,18 +4361,18 @@ file I/O package is made available for the given expression:
 
 (3) Vector Operations functions:
 
-   (a) all_true     (b) all_false
-   (c) any_true     (d) any_false
-   (e) assign       (f) count
-   (g) copy         (h) rotate-left
-   (i) rotate-right (j) shift-left
-   (k) shift-right  (l) sort
-   (m) nth_element  (n) iota
-   (o) sumk         (p) axpy
-   (q) axpby        (r) axpyz
-   (s) axpbyz       (t) axpbz
-   (u) dot          (v) dotk
-   (w) diff
+(a) all_true     (b) all_false
+(c) any_true     (d) any_false
+(e) assign       (f) count
+(g) copy         (h) reverse
+(i) rotate-left  (j) rotate-right
+(k) shift-left   (l) shift-right
+(m) sort         (n) nth_element
+(o) iota         (p) sumk
+(q) axpy         (r) axpby
+(s) axpyz        (t) axpbyz
+(u) axpbz        (v) dot
+(w) dotk         (x) diff
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -4323,14 +4440,14 @@ follows:
      printf("An error occurred.");
 
 
-Note31:  When  either the  'collect_variables'  or 'collect_functions'
+Note34: When  either the  'collect_variables'  or  'collect_functions'
 free functions return  true - that  does not necessarily  indicate the
 expression itself is  valid. It is  still possible that  when compiled
 the expression may have certain  'type' related errors - though  it is
 highly likely  that no  semantic errors  will occur  if either  return
 true.
 
-Note32: The default interface provided for both the  collect_variables
+Note35: The default interface provided for both the  collect_variables
 and collect_functions  free_functions, assumes  that expressions  will
 only be  utilising the  ExprTk reserved  functions (eg:  abs, cos, min
 etc). When user defined functions are  to be used in an expression,  a
@@ -4587,6 +4704,7 @@ checks typically cover:
    2. String access and handling
    3. Loop iteration checks
    4. Compilation checkpointing
+   5. Assert statements
 
 
 (1) Vector Access Runtime Checks
@@ -4663,7 +4781,7 @@ as follows:
    }
 
 
-Note33: The  lifetime of  any parser  or expression  instance must not
+Note36: The  lifetime of  any parser  or expression  instance must not
 exceed that of any VARTC instance that has been registered with it.
 
 When a vector access violation occurs, the registered VARTC instance's
@@ -4695,7 +4813,7 @@ point perform various actions such as:
   3. Remedy the access_ptr to allow for the evaluation to continue
 
 
-Note34: When employing option [3],  handle_runtime_violation needs  to
+Note37: When employing option [3],  handle_runtime_violation needs  to
 return  true,  otherwise  the  caller  will assume an unhandled access
 violation and default to using the base_ptr.
 
@@ -4734,7 +4852,7 @@ to the last value in the vector.
    }
 
 
-Note35: The return value  of true  in the above handler method signals
+Note38: The return value  of true  in the above handler method signals
 the caller to continue the vector access using the updated access_ptr.
 
 
@@ -4847,7 +4965,7 @@ members:
       expression.
 
 
-Note36: The  lifetime of  any parser  or expression  instance must not
+Note39: The  lifetime of  any parser  or expression  instance must not
 exceed that of any LRTC instance that has been registered with it.
 
 The following is an  example implementation of an  LRTC that
@@ -5031,7 +5149,76 @@ outline of what will be needed:
    }
 
 
-(5) Runtime Check Overheads
+(5) Assert statements
+ExprTk supports the  use of assert  statements to verify  pre and post
+conditions during the evaluation of expressions. The assert statements
+are only active when a user defined assert handler is registered  with
+the parser before expression compilation, otherwise they are  compiled
+out,  this is  similar to  how asserts  are included/excluded  in C++
+coupled with  the definition  of NDEBUG.  The assert  syntax has three
+variations as described below:
+
+   assert(x + y > i);
+   assert(x + y > i, 'assert statement 1');
+   assert(x + y > i, 'assert statement 1', 'ASSERT01');
+
+
+The three assert statement input parameters are as follows:
+
+   1. assert condition (mandatory)
+   2. assert message   (optional)
+   3. assert id        (optional)
+
+
+The  assert  condition  is essentially  a  boolean  statement that  is
+expected to  be true  during evaluation.  The other  two parameters of
+assert message and ID are  string values that are intended  to provide
+feedback  to  the  handler  and  to  ensure the  uniqueness  of assert
+statement respectively.  The three  parameters denoted  above and  the
+offset of the  assert statement from  the beginning of  the expression
+are  placed  inside  assert_context that  is provided  as part  of the
+assert_check  handler.  A  user defined  assert_check  handler  can be
+defined as follows:
+
+   struct my_assert_handler final : public exprtk::assert_check
+   {
+      void handle_assert(const assert_context& ctxt) override
+      {
+         printf("condition: [%s] \n", ctxt.condition.c_str());
+         printf("message:   [%s] \n", ctxt.message  .c_str());
+         printf("id:        [%s] \n", ctxt.id       .c_str());
+         printf("offset:    [%lu]\n", ctxt.offet            );
+         // throw std::runtime_error(.....);
+      }
+   };
+
+
+Once the  assert_check handler  has been  registered with  the parser,
+expressions that  contain assert  statements will  have their  asserts
+compiled in as part final evaluable expression instance:
+
+   typedef exprtk::symbol_table<T> symbol_table_t;
+   typedef exprtk::expression<T>   expression_t;
+   typedef exprtk::parser<T>       parser_t;
+
+   const std::string program =
+      " var x := 4;                             "
+      "                                         "
+      " for (var i := 0; i < 10; i += 1)        "
+      " {                                       "
+      "    assert(i < x, 'assert statement 1'); "
+      " }                                       ";
+
+   my_assert_handler handler;
+
+   expression_t expression;
+   parser_t parser;
+
+   parser.register_assert_check(handler);
+   parser.compile(program, expression);
+
+
+(6) Runtime Check Overheads
 All of the above mentioned runtime checks will incur an execution time
 overhead during the evaluation of expressions. This is an  unfortunate
 but necessary  side-effect of  the process  when runtime  safety is of
@@ -5047,12 +5234,90 @@ reasoning here  is that  incrementing an  integer should  be far  less
 expensive than computing the current "now" time-point.
 
 
-(6) Runtime Check Limitations
+(7) Runtime Check Limitations
 The available  RTC mechanisms  in ExprTk  are limited  to implementing
 said checks only within ExprTk based syntax sections of an expression.
 The  RTCs  will  not  be  active  within  user  defined  functions, or
 composited functions  that have  been compiled  with parser  instances
 that don't have the same set of RTC configurations enabled.
+
+
+(8) Runtime Handlers
+
+When implementing stateful run-time check handlers one must be careful
+to ensure the handler is setup correctly or reset between calls to the
+expression::value or parser::compile methods.
+
+The following example  code utilises the  compilation timeout RTC  and
+expression loop duration  RTC examples from  above to demonstrate  the
+need  to  reset the  internal  state of  the  various handlers  before
+compilation and valuation processes are invoked, as not doing so  will
+affect the ability for  the next expression in  the list to either  be
+correctly  compiled or  evaluated due  to the  potential of  erroneous
+timeouts occurring.
+
+   typedef exprtk::expression<T> expression_t;
+   typedef exprtk::parser<T>     parser_t;
+
+   my_compilation_timeout_check compilation_timeout_check;
+
+   my_loop_rtc loop_rtc;
+   loop_rtc.loop_set = loop_runtime_check_t::e_all_loops;
+   loop_rtc.max_loop_iterations = 100000;
+
+   parser_t parser;
+   parser.register_loop_runtime_check(loop_rtc);
+   parser.
+      register_compilation_timeout_check(compilation_timeout_check);
+
+   const auto compile_timeout_tp = []()
+   {
+      const auto max_duration = std::chrono::seconds(5);
+      return std::chrono::steady_clock::now() + max_duration;
+   };
+
+   const auto loop_timeout_tp = []()
+   {
+      const auto max_duration = std::chrono::seconds(10);
+      return std::chrono::steady_clock::now() + max_duration;
+   };
+
+   const std::vector<std::string> expressions =
+   {
+      "x + y / 2",
+      "sin(x) / cos(y) + 1",
+      "clamp(-1, sin(2 * pi * x) + cos(y / 2 * pi), +1)"
+   };
+
+   for (const auto& expr_str : expressions)
+   {
+      // Reset the timeout for the compilation RTC
+      compilation_timeout_check
+         .set_timeout_time(compile_timeout_tp());
+
+      expression_t expression;
+
+      if (!parser.compile(large_expression_string, expression))
+      {
+         printf("Error: %s\t\n", parser.error().c_str());
+         continue;
+      }
+
+      try
+      {
+         // Reset the timeout for the loop duration RTC
+         loop_rtc.set_timeout_time(loop_timeout_tp());
+
+         expression.value();
+      }
+      catch(std::runtime_error& exception)
+      {
+         printf("Exception: %s\n Expression: %s\n",
+                exception.what(),
+                expr_str.c_str());
+      }
+   }
+
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -5220,10 +5485,11 @@ into account when using ExprTk:
       various components: expression, parser and symbol_table.
 
  (03) Standard arithmetic operator precedence is applied (BEDMAS). In
-      General C, Pascal or Rust equivalent  unary and binary operator
-      precedence rules apply.
+      general C, Pascal or Rust equivalent unary, binary, logical and
+      equality/inequality operator precedence rules apply.
       eg: a == b and c > d + 1  --->  (a == b) and (c > (d + 1))
           x - y <= z / 2        --->  (x - y) <= (z / 2)
+          a - b / c * d^2^3     --->  a - ((b / c) * d^(2^3))
 
  (04) Results of expressions that are deemed as being 'valid' are  to
       exist within the set of Real numbers. All other results will be
@@ -5242,17 +5508,17 @@ into account when using ExprTk:
       combination of letters, digits, underscores and dots, ending in
       either a letter (A-Z or a-z), digit or underscore. (eg: x,  y2,
       var1,  power_func99,  person.age,  item.size.0). The associated
-      regex pattern is: [a-zA-Z]([a-zA-Z0-9_.]*|[a-zA-Z0-9_])
+      regex pattern is: [a-zA-Z][a-zA-Z0-9_.]*[a-zA-Z0-9_]+
 
  (08) Expression lengths and sub-expression lists are limited only by
       storage capacity.
 
  (09) The  life-time of  objects registered  with or  created from  a
-      specific symbol-table must span  at  least the lifetime  of the
+      specific symbol-table must  span at least  the lifetime of  the
       symbol  table  instance  and  all  compiled  expressions  which
-      utilise  objects,  such  as  variables,  strings,  vectors  and
-      functions of  that symbol-table,  otherwise the  result will be
-      undefined behaviour.
+      utilise objects, such as variables, strings, vectors,  function
+      compositor  functions  and  functions  of  that   symbol-table,
+      otherwise the result will be undefined behaviour.
 
  (10) Equal and not_equal  are  normalised-epsilon equality routines,
       which use epsilons of 0.0000000001 and 0.000001 for double  and
@@ -5356,16 +5622,16 @@ into account when using ExprTk:
       symbol table using any of  the reserved words will result  in a
       failure.
 
-      abs, acos, acosh, and, asin, asinh, atan, atan2, atanh, avg,
-      break, case,  ceil, clamp,  continue, cosh,  cos, cot,  csc,
-      default,  deg2grad, deg2rad,  else, equal,  erfc, erf,  exp,
-      expm1, false, floor, for, frac, grad2deg, hypot, iclamp, if,
-      ilike, in, inrange, in, like, log, log10, log1p, log2, logn,
-      mand,  max,  min,  mod,  mor,  mul,  nand,  ncdf,  nor, not,
-      not_equal,  not,  null, or,  pow,  rad2deg, repeat,  return,
+      abs, acos,  acosh, and, asin,  asinh,  assert, atan,  atan2,
+      atanh, avg, break, case,  ceil, clamp, continue, cosh,  cos,
+      cot,  csc, default,  deg2grad, deg2rad,  else, equal,  erfc,
+      erf, exp, expm1, false,  floor, for, frac, grad2deg,  hypot,
+      iclamp, if, ilike, in, inrange, in, like, log, log10, log1p,
+      log2, logn, mand, max, min, mod, mor, mul, nand, ncdf,  nor,
+      not, not_equal, not, null, or, pow, rad2deg, repeat, return,
       root, roundn, round,  sec, sgn, shl,  shr, sinc, sinh,  sin,
       sqrt, sum, swap, switch, tanh, tan, true, trunc, until, var,
-      while, xnor, xor, xor
+      while, xnor, xor
 
  (29) Every valid ExprTk statement is a "value returning" expression.
       Unlike some languages that limit the types of expressions  that
@@ -5680,50 +5946,69 @@ Details for each of the above examples can be found here:
 Various extended and advanced examples using ExprTk are available
 via the following:
 
-   (00) exprtk_binomial_coefficient.cpp
-   (01) exprtk_bsm_benchmark.cpp
-   (02) exprtk_calc.cpp
-   (03) exprtk_collatz.cpp
-   (04) exprtk_compilation_timeout.cpp
-   (05) exprtk_exprgen.cpp
-   (06) exprtk_extract_dependents.cpp
-   (07) exprtk_factorize_fermat.cpp
-   (08) exprtk_factorize_pollard.cpp
-   (09) exprtk_fizzbuzz.cpp
-   (10) exprtk_funcall_benchmark.cpp
-   (11) exprtk_game_of_life.cpp
-   (12) exprtk_gcd.cpp
-   (13) exprtk_gnuplot.cpp
-   (14) exprtk_gnuplot_multi.cpp
-   (15) exprtk_groups_examples.cpp
-   (16) exprtk_immutable_symbol_table_example.cpp
-   (17) exprtk_instruction_primer.cpp
-   (18) exprtk_loop_timeout_rtc.cpp
-   (19) exprtk_mandelbrot.cpp
-   (20) exprtk_max_subarray_sum.cpp
-   (21) exprtk_montecarlo_e.cpp
-   (22) exprtk_montecarlo_pi.cpp
-   (23) exprtk_nthroot_bisection.cpp
-   (24) exprtk_pascals_triangle.cpp
-   (25) exprtk_pi_10kdigits.cpp
-   (26) exprtk_prime_sieve.cpp
-   (27) exprtk_prime_sieve_vectorized.cpp
-   (28) exprtk_repl.cpp
-   (29) exprtk_riddle.cpp
-   (30) exprtk_rtc_overhead.cpp
-   (31) exprtk_sumofprimes.cpp
-   (32) exprtk_testgen.cpp
-   (33) exprtk_truthtable_gen.cpp
-   (34) exprtk_vector_benchmark.cpp
-   (35) exprtk_vector_benchmark_multithreaded.cpp
-   (36) exprtk_vectorized_binomial_model.cpp
-   (37) exprtk_vectornorm.cpp
-   (38) exprtk_wiener_process_pi.cpp
+   (00) exprtk_american_option_binomial_model.cpp
+   (01) exprtk_binomial_coefficient.cpp
+   (02) exprtk_bsm_benchmark.cpp
+   (03) exprtk_calc.cpp
+   (04) exprtk_collatz.cpp
+   (05) exprtk_compilation_timeout.cpp
+   (06) exprtk_exprgen.cpp
+   (07) exprtk_extract_dependents.cpp
+   (08) exprtk_e_10kdigits.cpp
+   (09) exprtk_factorize_fermat.cpp
+   (10) exprtk_factorize_pollard.cpp
+   (11) exprtk_fizzbuzz.cpp
+   (12) exprtk_funcall_benchmark.cpp
+   (13) exprtk_game_of_life.cpp
+   (14) exprtk_gcd.cpp
+   (15) exprtk_gnuplot.cpp
+   (16) exprtk_gnuplot_multi.cpp
+   (17) exprtk_groups_examples.cpp
+   (18) exprtk_immutable_symbol_table_example.cpp
+   (19) exprtk_import_packages.cpp
+   (20) exprtk_instruction_primer.cpp
+   (21) exprtk_jump_diffusion_process.cpp
+   (22) exprtk_loop_timeout_rtc.cpp
+   (23) exprtk_magic_square.cpp
+   (24) exprtk_mandelbrot.cpp
+   (25) exprtk_max_subarray_sum.cpp
+   (26) exprtk_maze_generator.cpp
+   (27) exprtk_miller_rabin_primality_test.cpp
+   (28) exprtk_montecarlo_e.cpp
+   (29) exprtk_montecarlo_option_pricing_model.cpp
+   (30) exprtk_montecarlo_pi.cpp
+   (31) exprtk_naive_primes.cpp
+   (32) exprtk_normal_random_marsaglia_method.cpp
+   (33) exprtk_nqueens_problem.cpp
+   (34) exprtk_nthroot_bisection.cpp
+   (35) exprtk_ornstein_uhlenbeck_process.cpp
+   (36) exprtk_pascals_triangle.cpp
+   (37) exprtk_pi_10kdigits.cpp
+   (38) exprtk_prime_sieve.cpp
+   (39) exprtk_prime_sieve_vectorized.cpp
+   (40) exprtk_pythagorean_triples.cpp
+   (41) exprtk_recursive_fibonacci.cpp
+   (42) exprtk_repl.cpp
+   (43) exprtk_riddle.cpp
+   (44) exprtk_rtc_overhead.cpp
+   (45) exprtk_sudoku_solver.cpp
+   (46) exprtk_sumofprimes.cpp
+   (47) exprtk_symtab_functions.cpp
+   (48) exprtk_testgen.cpp
+   (49) exprtk_tower_of_hanoi.cpp
+   (50) exprtk_truthtable_gen.cpp
+   (51) exprtk_vectorized_binomial_model.cpp
+   (52) exprtk_vectornorm.cpp
+   (53) exprtk_vector_benchmark.cpp
+   (54) exprtk_vector_benchmark_multithreaded.cpp
+   (55) exprtk_vector_resize_example.cpp
+   (56) exprtk_vector_resize_inline_example.cpp
+   (57) exprtk_wiener_process_pi.cpp
 
 
 Details for each of the above examples can be found here:
 
-  https://www.partow.net/programming/exprtk/index.html#variousexamples
+   https://partow.net/programming/exprtk/index.html#variousexamples
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

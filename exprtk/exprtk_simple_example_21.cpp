@@ -63,7 +63,7 @@ void binomial_option_pricing_model()
       "                                                                   "
       " option_price[0];                                                  ";
 
-   T s = T( 100.00); // Stock / Underlying / Base price
+   T s = T( 100.00); // Spot / Stock / Underlying / Base price
    T k = T( 110.00); // Strike price
    T v = T(   0.30); // Volatility
    T t = T(   2.22); // Years to maturity
@@ -91,21 +91,19 @@ void binomial_option_pricing_model()
 
    const T binomial_call_option_price = expression.value();
 
-   printf("BinomialPrice(%4s, %5.3f, %5.3f, %5.3f, %5.3f, %5.3f) = %10.6f\n",
-          callput_flag.c_str(),
-          s, k, t, r, v,
-          binomial_call_option_price);
-
    callput_flag = "put";
 
    const T binomial_put_option_price = expression.value();
 
-   printf("BinomialPrice(%4s, %5.3f, %5.3f, %5.3f, %5.3f, %5.3f) = %10.6f\n",
-          callput_flag.c_str(),
+   printf("BinomialPrice(call, %5.3f, %5.3f, %5.3f, %5.3f, %5.3f) = %10.6f\n",
+          s, k, t, r, v,
+          binomial_call_option_price);
+
+   printf("BinomialPrice(put , %5.3f, %5.3f, %5.3f, %5.3f, %5.3f) = %10.6f\n",
           s, k, t, r, v,
           binomial_put_option_price);
 
-   const double put_call_parity_diff =
+   const T put_call_parity_diff =
       (binomial_call_option_price - binomial_put_option_price) -
       (s - k * std::exp(-r * t));
 

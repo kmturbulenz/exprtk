@@ -23,13 +23,15 @@
 #include "exprtk.hpp"
 
 
-template <typename T, T Process(unsigned char)>
+template <typename T, T Process(const unsigned char)>
 struct char_process : public exprtk::igeneric_function<T>
 {
    typedef typename exprtk::igeneric_function<T> igfun_t;
    typedef typename igfun_t::parameter_list_t    parameter_list_t;
    typedef typename igfun_t::generic_type        generic_type;
    typedef typename generic_type::string_view    string_t;
+
+   using exprtk::igeneric_function<T>::operator();
 
    char_process()
    : exprtk::igeneric_function<T>("S")
@@ -43,13 +45,13 @@ struct char_process : public exprtk::igeneric_function<T>
 };
 
 template <typename T>
-T is_digit_func(unsigned char c)
+T is_digit_func(const unsigned char c)
 {
    return (('0' <= c) && (c <= '9')) ? T(1) : T(0);
 }
 
 template <typename T>
-T to_num_func(unsigned char c)
+T to_num_func(const unsigned char c)
 {
    return static_cast<T>(c - '0');
 }
@@ -121,10 +123,10 @@ void rpn_example()
 
    const std::string rpn_expressions[] =
    {
-      "2 3 8 / ^ 4 6 * + 3 9 / -",
-      "1 2 / 6 5 2 - / * 7 +",
-      "1 2 * 3 / 4 * 5 / 6 *",
-      "8 6 4 + * 2 /"
+      "2 3 8 / ^ 4 6 * + 3 9 / -", // 2 ^ (3 / 8) + 4 * 6 - 3 / 9
+      "1 2 / 6 5 2 - / * 7 +"    , // (1 / 2) * (6 / (5 - 2)) + 7
+      "1 2 * 3 / 4 * 5 / 6 *"    , // ((((1 * 2) / 3) * 4) / 5) * 6
+      "8 6 4 + * 2 /"              // (8 * (6 + 4)) / 2
    };
 
    for (std::size_t i = 0; i < sizeof(rpn_expressions) / sizeof(std::string); ++i)

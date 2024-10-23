@@ -40,7 +40,7 @@ void black_scholes_merton_model()
       "    k * e^(-r * t) * ncdf(-d2) - s * ncdf(-d1);              "
       "                                                             ";
 
-   T s = T(60.00); // Stock / Underlying / Base price
+   T s = T(60.00); // Spot / Stock / Underlying / Base price
    T k = T(65.00); // Strike price
    T v = T( 0.30); // Volatility
    T t = T( 0.25); // Years to maturity
@@ -65,27 +65,27 @@ void black_scholes_merton_model()
    parser_t parser;
    parser.compile(bsm_model_program,expression);
 
-   {
-      callput_flag = "call";
+   callput_flag = "call";
 
-      const T bsm_option_price = expression.value();
+   const T bsm_call_option_price = expression.value();
 
-      printf("BSM(%4s, %5.3f, %5.3f, %5.3f, %5.3f, %5.3f) = %10.6f\n",
-             callput_flag.c_str(),
-             s, k, t, r, v,
-             bsm_option_price);
-   }
+   callput_flag = "put";
 
-   {
-      callput_flag = "put";
+   const T bsm_put_option_price = expression.value();
 
-      const T bsm_option_price = expression.value();
+   printf("BSM(call, %5.3f, %5.3f, %5.3f, %5.3f, %5.3f) = %10.6f\n",
+          s, k, t, r, v,
+          bsm_call_option_price);
 
-      printf("BSM(%4s, %5.3f, %5.3f, %5.3f, %5.3f, %5.3f) = %10.6f\n",
-             callput_flag.c_str(),
-             s, k, t, r, v,
-             bsm_option_price);
-   }
+   printf("BSM(put , %5.3f, %5.3f, %5.3f, %5.3f, %5.3f) = %10.6f\n",
+          s, k, t, r, v,
+          bsm_put_option_price);
+
+   const T put_call_parity_diff =
+      (bsm_call_option_price - bsm_put_option_price) -
+      (s - k * std::exp(-r * t));
+
+   printf("Put-Call parity difference: %20.17f\n", put_call_parity_diff);
 }
 
 int main()

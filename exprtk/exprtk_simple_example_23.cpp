@@ -32,11 +32,11 @@ void real_1d_discrete_fourier_transform()
    typedef exprtk::function_compositor<T>  compositor_t;
    typedef typename compositor_t::function function_t;
 
-   const double sampling_rate = 1024.0;            // ~1KHz
-   const double N             = 8 * sampling_rate; // 8 seconds worth of samples
+   const T sampling_rate = 1024.0;            // ~1KHz
+   const T N             = 8 * sampling_rate; // 8 seconds worth of samples
 
-   std::vector<double> input (static_cast<std::size_t>(N),0.0);
-   std::vector<double> output(static_cast<std::size_t>(N),0.0);
+   std::vector<T> input (static_cast<std::size_t>(N),0.0);
+   std::vector<T> output(static_cast<std::size_t>(N),0.0);
 
    exprtk::rtl::io::println<T> println;
 

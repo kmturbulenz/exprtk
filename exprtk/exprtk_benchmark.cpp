@@ -332,23 +332,23 @@ int main(int argc, char* argv[])
 
    {
       printf("--- NATIVE ---\n");
-      run_native_benchmark(x,y,native<double>::func00,global_expression_list[ 0]);
-      run_native_benchmark(x,y,native<double>::func01,global_expression_list[ 1]);
-      run_native_benchmark(x,y,native<double>::func02,global_expression_list[ 2]);
-      run_native_benchmark(x,y,native<double>::func03,global_expression_list[ 3]);
-      run_native_benchmark(x,y,native<double>::func04,global_expression_list[ 4]);
-      run_native_benchmark(x,y,native<double>::func05,global_expression_list[ 5]);
-      run_native_benchmark(x,y,native<double>::func06,global_expression_list[ 6]);
-      run_native_benchmark(x,y,native<double>::func07,global_expression_list[ 7]);
-      run_native_benchmark(x,y,native<double>::func08,global_expression_list[ 8]);
-      run_native_benchmark(x,y,native<double>::func09,global_expression_list[ 9]);
-      run_native_benchmark(x,y,native<double>::func10,global_expression_list[10]);
-      run_native_benchmark(x,y,native<double>::func11,global_expression_list[11]);
-      run_native_benchmark(x,y,native<double>::func12,global_expression_list[12]);
-      run_native_benchmark(x,y,native<double>::func13,global_expression_list[13]);
-      run_native_benchmark(x,y,native<double>::func14,global_expression_list[14]);
-      run_native_benchmark(x,y,native<double>::func15,global_expression_list[15]);
-      run_native_benchmark(x,y,native<double>::func16,global_expression_list[16]);
+      run_native_benchmark(x, y, native<double>::func00,global_expression_list[ 0]);
+      run_native_benchmark(x, y, native<double>::func01,global_expression_list[ 1]);
+      run_native_benchmark(x, y, native<double>::func02,global_expression_list[ 2]);
+      run_native_benchmark(x, y, native<double>::func03,global_expression_list[ 3]);
+      run_native_benchmark(x, y, native<double>::func04,global_expression_list[ 4]);
+      run_native_benchmark(x, y, native<double>::func05,global_expression_list[ 5]);
+      run_native_benchmark(x, y, native<double>::func06,global_expression_list[ 6]);
+      run_native_benchmark(x, y, native<double>::func07,global_expression_list[ 7]);
+      run_native_benchmark(x, y, native<double>::func08,global_expression_list[ 8]);
+      run_native_benchmark(x, y, native<double>::func09,global_expression_list[ 9]);
+      run_native_benchmark(x, y, native<double>::func10,global_expression_list[10]);
+      run_native_benchmark(x, y, native<double>::func11,global_expression_list[11]);
+      run_native_benchmark(x, y, native<double>::func12,global_expression_list[12]);
+      run_native_benchmark(x, y, native<double>::func13,global_expression_list[13]);
+      run_native_benchmark(x, y, native<double>::func14,global_expression_list[14]);
+      run_native_benchmark(x, y, native<double>::func15,global_expression_list[15]);
+      run_native_benchmark(x, y, native<double>::func16,global_expression_list[16]);
    }
 
    {

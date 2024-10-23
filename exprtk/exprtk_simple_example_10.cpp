@@ -74,16 +74,19 @@ void newton_sqrt()
    parser_t parser;
    parser.compile(expression_str,expression);
 
-   for (std::size_t i = 0; i < 100; ++i)
+   for (std::size_t i = 0; i < 1000; ++i)
    {
       x = static_cast<T>(i);
 
       const T result = expression.value();
+      const T real   = std::sqrt(x);
+      const T error  = std::abs(result - real);
 
-      printf("sqrt(%03d) - Result: %15.13f\tReal: %15.13f\n",
+      printf("sqrt(%03d) - Result: %15.13f\tReal: %15.13f\tError: %18.16f\n",
              static_cast<unsigned int>(i),
              result,
-             std::sqrt(x));
+             real,
+             error);
    }
 }
 

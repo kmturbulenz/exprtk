@@ -33,10 +33,11 @@ void compute_implied_volatility()
    typedef typename compositor_t::function function_t;
 
    const std::string implied_volatility_program =
-      " var v         := 0.5; /* Initial volatility guess */            "
-      " var epsilon   := 0.0000001;                                     "
-      " var max_iters := 1000;                                          "
-      " var itr       := 0;                                             "
+      " const var epsilon   := 0.0000001;                               "
+      " const var max_iters := 1000;                                    "
+      "                                                                 "
+      " var v   := 0.5; /* Initial volatility guess */                  "
+      " var itr := 0;                                                   "
       "                                                                 "
       " while ((itr += 1) <= max_iters)                                 "
       " {                                                               "
@@ -59,7 +60,7 @@ void compute_implied_volatility()
       "                                                                 "
       " itr <= max_iters ? v : null;                                    ";
 
-   T s            = T( 100.00); // Stock / Underlying / Base price
+   T s            = T( 100.00); // Spot / Stock / Underlying / Base price
    T k            = T( 110.00); // Strike price
    T t            = T(   2.22); // Years to maturity
    T r            = T(   0.05); // Risk free rate
@@ -83,9 +84,9 @@ void compute_implied_volatility()
       .vars("s", "k", "r", "t", "v")
       .expression
       (
-         " var d1 := (log(s / k) + (r + v^2 / 2) * T) / (v * sqrt(t)); "
+         " var d1 := (log(s / k) + (r + v^2 / 2) * t) / (v * sqrt(t)); "
          " var d2 := d1 - v * sqrt(t);                                 "
-         " s * ncdf(d1) - k * exp(-r * T) * ncdf(d2);                  "
+         " s * ncdf(d1) - k * exp(-r * t) * ncdf(d2);                  "
       ));
 
    compositor.add(
@@ -95,7 +96,7 @@ void compute_implied_volatility()
       (
          " var d1 := (log(s / k) + (r + v^2 / 2) * t) / (v * sqrt(t)); "
          " var d2 := d1 - v * sqrt(t);                                 "
-         " k * exp(-r * T) * ncdf(-d2) - s * ncdf(-d1);                "
+         " k * exp(-r * t) * ncdf(-d2) - s * ncdf(-d1);                "
       ));
 
    compositor.add(
@@ -104,7 +105,7 @@ void compute_implied_volatility()
       .expression
       (
          " var d1 := (log(s / k) + (r + v^2 / 2) * t) / (v * sqrt(t)); "
-         " s * sqrt(T) * exp(-d1^2 / 2) / sqrt(2pi);                   "
+         " s * sqrt(t) * exp(-d1^2 / 2) / sqrt(2pi);                   "
       ));
 
    expression_t expression;

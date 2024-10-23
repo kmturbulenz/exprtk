@@ -44,7 +44,9 @@ struct vector_access_rtc : public exprtk::vector_access_runtime_check
              context.access_ptr ,
              static_cast<unsigned int>(context.type_size));
 
-      throw std::runtime_error("Runtime vector access violation. Vector: " + vector_name);
+      throw std::runtime_error
+         ("Runtime vector access violation. Vector: " + vector_name);
+
       return false;
    }
 };
@@ -59,7 +61,7 @@ void vector_overflow_example()
    const std::string expression_str =
       " for (var i := 0; i < max(v0[],v1[]); i += 1) "
       " {                                            "
-      "   v0[i] := (2 * v0[i]) + (v1[i] / 3);        "
+      "    v0[i] := (2 * v0[i]) + (v1[i] / 3);       "
       " }                                            ";
 
    T v0[5 ] = { 0, 1, 2, 3, 4 };

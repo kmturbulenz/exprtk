@@ -31,7 +31,7 @@ void trig_function()
    typedef exprtk::parser<T>       parser_t;
 
    const std::string expression_string =
-      "clamp(-1.0,sin(2 * pi * x) + cos(x / 2 * pi),+1.0)";
+      "clamp(-1.0, sin(2 * pi * x) + cos(x / 2 * pi), +1.0)";
 
    T x;
 

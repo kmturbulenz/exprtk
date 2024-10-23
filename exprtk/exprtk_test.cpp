@@ -36,6 +36,16 @@ typedef float numeric_type;
 typedef double numeric_type;
 #endif
 
+#if __cplusplus >= 201103L
+   #define exprtk_test_override override
+   #define exprtk_test_final    final
+   #define exprtk_test_delete   = delete
+#else
+   #define exprtk_test_override
+   #define exprtk_test_final
+   #define exprtk_test_delete
+#endif
+
 typedef std::pair<std::string,numeric_type> test_t;
 
 static const test_t global_test_list[] =
@@ -1190,7 +1200,7 @@ inline bool test_expression(const std::string& expression_string, const T& expec
       }
    }
 
-   if (!exprtk::expression_helper<T>::is_constant(expression))
+   if (!exprtk::expression_helper<T>::is_literal(expression))
    {
       printf("test_expression() - Error: Expression did not compile to a constant!   Expression: %s\n",
              expression_string.c_str());
@@ -1251,12 +1261,14 @@ struct edge_cases<double>
 };
 
 template <typename T>
-inline bool run_test00()
+bool run_test00()
 {
    const std::size_t rounds = 10;
+
    for (std::size_t r = 0; r < rounds; ++r)
    {
       bool result = true;
+
       for (std::size_t i = 0; i < global_test_list_size; ++i)
       {
          if (!test_expression<T>(global_test_list[i].first,T(global_test_list[i].second)))
@@ -1330,7 +1342,7 @@ struct test_xyzw
 };
 
 template <typename T>
-inline bool run_test01()
+bool run_test01()
 {
    {
       static const test_xy<T> test_list[] =
@@ -2106,7 +2118,7 @@ struct test_ab
 };
 
 template <typename T>
-inline bool run_test02()
+bool run_test02()
 {
    static const test_ab<T> test_list[] =
    {
@@ -2947,7 +2959,7 @@ inline bool run_test02()
 }
 
 template <typename T>
-inline bool run_test03()
+bool run_test03()
 {
    typedef exprtk::symbol_table<T> symbol_table_t;
    typedef exprtk::expression<T>   expression_t;
@@ -3251,9 +3263,9 @@ inline T clamp(const T& l, const T& v, const T& u)
 }
 
 template <typename T>
-inline bool run_test04()
+bool run_test04()
 {
-   std::string expression_string = "clamp(-1.0,sin(2 * pi * x) + cos(y / 2 * pi),+1.0)";
+   const std::string expression_string = "clamp(-1.0,sin(2 * pi * x) + cos(y / 2 * pi),+1.0)";
 
    exprtk::symbol_table<T> symbol_table;
    exprtk::expression<T> expression;
@@ -3308,10 +3320,11 @@ inline bool run_test04()
 }
 
 template <typename T>
-inline bool run_test05()
+bool run_test05()
 {
    typedef exprtk::expression<T> expression_t;
-   std::string expression_string = "clamp(-1.0,sin(2 * pi * x_var123) + cos(y_var123 / 2 * pi),+1.0)";
+
+   const std::string expression_string = "clamp(-1.0,sin(2 * pi * x_var123) + cos(y_var123 / 2 * pi),+1.0)";
 
    exprtk::symbol_table<T>  symbol_table;
    std::deque<expression_t> expression_list;
@@ -3380,10 +3393,11 @@ inline bool run_test05()
 }
 
 template <typename T>
-inline bool run_test06()
+bool run_test06()
 {
    typedef exprtk::expression<T> expression_t;
-   std::string expression_string = "sqrt(1 - (x^2))";
+
+   const std::string expression_string = "sqrt(1 - (x^2))";
 
    T x = T(0);
 
@@ -3429,10 +3443,11 @@ inline bool run_test06()
 }
 
 template <typename T>
-inline bool run_test07()
+bool run_test07()
 {
    typedef exprtk::expression<T> expression_t;
-   std::string expression_string = "sin(2x + 1 / 3)";
+
+   const std::string expression_string = "sin(2x + 1 / 3)";
 
    T x = T(0);
 
@@ -3528,7 +3543,7 @@ inline bool run_test07()
 }
 
 template <typename T>
-inline bool run_test08()
+bool run_test08()
 {
 
    static const std::string expr_str[] =
@@ -3717,7 +3732,7 @@ inline bool run_test08()
 }
 
 template <typename T>
-struct myfunc : public exprtk::ifunction<T>
+struct myfunc exprtk_test_final : public exprtk::ifunction<T>
 {
    using exprtk::ifunction<T>::operator();
 
@@ -3741,10 +3756,11 @@ define_free_functions(foo,numeric_type)
 #undef define_free_functions
 
 template <typename T>
-inline bool run_test09()
+bool run_test09()
 {
    {
       static const std::size_t rounds = 1000;
+
       for (std::size_t i = 0; i < rounds; ++i)
       {
          typedef exprtk::expression<T> expression_t;
@@ -3887,7 +3903,7 @@ inline bool run_test09()
 }
 
 template <typename T>
-inline bool run_test10()
+bool run_test10()
 {
    typedef exprtk::expression<T> expression_t;
 
@@ -5221,9 +5237,10 @@ inline bool run_test10()
 }
 
 template <typename T>
-inline bool run_test11()
+bool run_test11()
 {
    typedef exprtk::expression<T> expression_t;
+
    std::string expression_string = "(x + y) / 3";
 
    T x = T(1.0);
@@ -5293,7 +5310,7 @@ inline bool run_test11()
 }
 
 template <typename T>
-inline bool run_test12()
+bool run_test12()
 {
    typedef exprtk::expression<T> expression_t;
 
@@ -5394,33 +5411,33 @@ inline bool run_test12()
 }
 
 template <typename T>
-struct sine_deg : public exprtk::ifunction<T>
+struct sine_deg exprtk_test_final : public exprtk::ifunction<T>
 {
    using exprtk::ifunction<T>::operator();
 
    sine_deg() : exprtk::ifunction<T>(1) {}
 
-   inline T operator()(const T& v)
+   inline T operator()(const T& v) exprtk_test_override
    {
       return std::sin((v * T(exprtk::details::numeric::constant::pi)) / T(180));
    }
 };
 
 template <typename T>
-struct cosine_deg : public exprtk::ifunction<T>
+struct cosine_deg exprtk_test_final : public exprtk::ifunction<T>
 {
    using exprtk::ifunction<T>::operator();
 
    cosine_deg() : exprtk::ifunction<T>(1) {}
 
-   inline T operator()(const T& v)
+   inline T operator()(const T& v) exprtk_test_override
    {
       return std::cos((v * T(exprtk::details::numeric::constant::pi)) / T(180));
    }
 };
 
 template <typename T>
-inline bool run_test13()
+bool run_test13()
 {
    typedef exprtk::symbol_table<T> symbol_table_t;
    typedef exprtk::expression<T>   expression_t;
@@ -5591,7 +5608,7 @@ inline std::size_t load_expressions(const std::string& file_name,
 }
 
 template <typename T>
-inline bool run_test14()
+bool run_test14()
 {
    typedef exprtk::expression<T> expression_t;
 
@@ -5643,8 +5660,8 @@ inline bool run_test14()
 
    std::deque<std::string> expr_str_list;
 
-   load_expressions("exprtk_functional_test.txt"    ,expr_str_list);
-   load_expressions("exprtk_functional_ext_test.txt",expr_str_list);
+   load_expressions("exprtk_functional_test.txt"     , expr_str_list);
+   load_expressions("exprtk_functional_ext_test.txt" , expr_str_list);
 
    if (expr_str_list.empty())
    {
@@ -5653,6 +5670,7 @@ inline bool run_test14()
 
    std::deque<exprtk::expression<T> > expression_list;
    bool error_found = false;
+
    static const std::size_t rounds = 5;
 
    for (std::size_t r = 0; r < rounds; ++r)
@@ -5682,7 +5700,7 @@ inline bool run_test14()
 
       for (std::size_t i = 0; i < expression_list.size(); ++i)
       {
-         T result = expression_list[i].value();
+         const T result = expression_list[i].value();
 
          if (result != T(1))
          {
@@ -5705,7 +5723,7 @@ inline bool run_test14()
 }
 
 template <typename T>
-inline bool run_test15()
+bool run_test15()
 {
    typedef exprtk::expression<T> expression_t;
 
@@ -5809,23 +5827,23 @@ struct base_func : public exprtk::ifunction<T>
 
    typedef const T& type;
    base_func(const std::size_t& n) : exprtk::ifunction<T>(n) {}
-   inline T operator()(type v0, type v1, type v2, type v3, type v4) { return (v0 + v1 + v2 + v3 + v4); }
-   inline T operator()(type v0, type v1, type v2, type v3) { return (v0 + v1 + v2 + v3); }
-   inline T operator()(type v0, type v1, type v2) { return (v0 + v1 + v2); }
-   inline T operator()(type v0, type v1) { return (v0 + v1); }
-   inline T operator()(type v0) { return v0; }
-   inline T operator()() { return T(1.1234); }
+   inline T operator()(type v0, type v1, type v2, type v3, type v4) exprtk_test_override { return (v0 + v1 + v2 + v3 + v4); }
+   inline T operator()(type v0, type v1, type v2, type v3) exprtk_test_override { return (v0 + v1 + v2 + v3); }
+   inline T operator()(type v0, type v1, type v2) exprtk_test_override { return (v0 + v1 + v2); }
+   inline T operator()(type v0, type v1) exprtk_test_override { return (v0 + v1); }
+   inline T operator()(type v0) exprtk_test_override { return v0; }
+   inline T operator()() exprtk_test_override { return T(1.1234); }
 };
 
-template <typename T> struct test_func5 : public base_func<T> { test_func5() : base_func<T>(5){} };
-template <typename T> struct test_func4 : public base_func<T> { test_func4() : base_func<T>(4){} };
-template <typename T> struct test_func3 : public base_func<T> { test_func3() : base_func<T>(3){} };
-template <typename T> struct test_func2 : public base_func<T> { test_func2() : base_func<T>(2){} };
-template <typename T> struct test_func1 : public base_func<T> { test_func1() : base_func<T>(1){} };
-template <typename T> struct test_func0 : public base_func<T> { test_func0() : base_func<T>(0){} };
+template <typename T> struct test_func5 exprtk_test_final : public base_func<T> { test_func5() : base_func<T>(5){} };
+template <typename T> struct test_func4 exprtk_test_final : public base_func<T> { test_func4() : base_func<T>(4){} };
+template <typename T> struct test_func3 exprtk_test_final : public base_func<T> { test_func3() : base_func<T>(3){} };
+template <typename T> struct test_func2 exprtk_test_final : public base_func<T> { test_func2() : base_func<T>(2){} };
+template <typename T> struct test_func1 exprtk_test_final : public base_func<T> { test_func1() : base_func<T>(1){} };
+template <typename T> struct test_func0 exprtk_test_final : public base_func<T> { test_func0() : base_func<T>(0){} };
 
 template <typename T>
-inline bool run_test16()
+bool run_test16()
 {
    typedef exprtk::expression<T> expression_t;
 
@@ -5963,7 +5981,7 @@ inline bool run_test16()
 }
 
 template <typename T>
-inline bool run_test17()
+bool run_test17()
 {
    typedef exprtk::expression<T> expression_t;
 
@@ -6081,7 +6099,7 @@ inline bool run_test17()
 }
 
 template <typename T>
-struct va_func : public exprtk::ivararg_function<T>
+struct va_func exprtk_test_final : public exprtk::ivararg_function<T>
 {
    va_func()
    {
@@ -6090,7 +6108,7 @@ struct va_func : public exprtk::ivararg_function<T>
       exprtk::set_max_num_args(*this, 20);
    }
 
-   inline T operator()(const std::vector<T>& arglist)
+   inline T operator()(const std::vector<T>& arglist) exprtk_test_override
    {
       T result = T(0);
 
@@ -6104,7 +6122,7 @@ struct va_func : public exprtk::ivararg_function<T>
 };
 
 template <typename T>
-struct gen_func : public exprtk::igeneric_function<T>
+struct gen_func exprtk_test_final : public exprtk::igeneric_function<T>
 {
    typedef typename exprtk::igeneric_function<T>::generic_type generic_type;
    typedef typename exprtk::igeneric_function<T>::parameter_list_t parameter_list_t;
@@ -6121,7 +6139,7 @@ struct gen_func : public exprtk::igeneric_function<T>
    , string_count(0)
    {}
 
-   inline T operator()(parameter_list_t params)
+   inline T operator()(parameter_list_t params) exprtk_test_override
    {
       for (std::size_t i = 0; i < params.size(); ++i)
       {
@@ -6161,7 +6179,7 @@ struct gen_func : public exprtk::igeneric_function<T>
 };
 
 template <typename T>
-struct gen_func2 : public exprtk::igeneric_function<T>
+struct gen_func2 exprtk_test_final : public exprtk::igeneric_function<T>
 {
    typedef typename exprtk::igeneric_function<T>::parameter_list_t parameter_list_t;
 
@@ -6170,19 +6188,19 @@ struct gen_func2 : public exprtk::igeneric_function<T>
    gen_func2()
    {}
 
-   inline T operator()(parameter_list_t)
+   inline T operator()(parameter_list_t) exprtk_test_override
    {
       return T(0);
    }
 
-   inline T operator()(const std::size_t&, parameter_list_t params)
+   inline T operator()(const std::size_t&, parameter_list_t params) exprtk_test_override
    {
       return this->operator()(params);
    }
 };
 
 template <typename T>
-struct inc_func : public exprtk::igeneric_function<T>
+struct inc_func exprtk_test_final : public exprtk::igeneric_function<T>
 {
    typedef typename exprtk::igeneric_function<T>::generic_type generic_type;
    typedef typename exprtk::igeneric_function<T>::parameter_list_t parameter_list_t;
@@ -6196,7 +6214,7 @@ struct inc_func : public exprtk::igeneric_function<T>
    inc_func()
    {}
 
-   inline T operator()(parameter_list_t params)
+   inline T operator()(parameter_list_t params) exprtk_test_override
    {
       for (std::size_t i = 0; i < params.size(); ++i)
       {
@@ -6237,14 +6255,14 @@ struct inc_func : public exprtk::igeneric_function<T>
       return T(0);
    }
 
-   inline T operator()(const std::size_t&, parameter_list_t params)
+   inline T operator()(const std::size_t&, parameter_list_t params) exprtk_test_override
    {
       return this->operator()(params);
    }
 };
 
 template <typename T>
-struct rem_space_and_uppercase : public exprtk::igeneric_function<T>
+struct rem_space_and_uppercase exprtk_test_final : public exprtk::igeneric_function<T>
 {
    typedef typename exprtk::igeneric_function<T> igenfunc_t;
    typedef typename igenfunc_t::generic_type     generic_type;
@@ -6257,7 +6275,7 @@ struct rem_space_and_uppercase : public exprtk::igeneric_function<T>
    : igenfunc_t("S",igenfunc_t::e_rtrn_string)
    {}
 
-   inline T operator()(std::string& result, parameter_list_t params)
+   inline T operator()(std::string& result, parameter_list_t params) exprtk_test_override
    {
       string_t string(params[0]);
 
@@ -6275,7 +6293,7 @@ struct rem_space_and_uppercase : public exprtk::igeneric_function<T>
       return T(0);
    }
 
-   inline T operator()(const std::size_t& param_seq_index, std::string& result, parameter_list_t params)
+   inline T operator()(const std::size_t& param_seq_index, std::string& result, parameter_list_t params) exprtk_test_override
    {
       if (1 == param_seq_index)
          return this->operator()(result,params);
@@ -6285,7 +6303,7 @@ struct rem_space_and_uppercase : public exprtk::igeneric_function<T>
 };
 
 template <typename T>
-struct vararg_func : public exprtk::igeneric_function<T>
+struct vararg_func exprtk_test_final : public exprtk::igeneric_function<T>
 {
    typedef typename exprtk::igeneric_function<T>::parameter_list_t
                                                   parameter_list_t;
@@ -6302,7 +6320,7 @@ struct vararg_func : public exprtk::igeneric_function<T>
    : exprtk::igeneric_function<T>("Z|T*|V")
    {}
 
-   inline T operator()(const std::size_t& ps_index, parameter_list_t /*arglist*/)
+   inline T operator()(const std::size_t& ps_index, parameter_list_t /*arglist*/) exprtk_test_override
    {
       switch (ps_index)
       {                         // Overload resolution:
@@ -6315,7 +6333,7 @@ struct vararg_func : public exprtk::igeneric_function<T>
 };
 
 template <typename T>
-struct vecrebase_func : public exprtk::igeneric_function<T>
+struct vecrebase_func exprtk_test_final : public exprtk::igeneric_function<T>
 {
    typedef typename exprtk::igeneric_function<T>::parameter_list_t
                                                   parameter_list_t;
@@ -6331,7 +6349,7 @@ struct vecrebase_func : public exprtk::igeneric_function<T>
    : exprtk::igeneric_function<T>("V")
    {}
 
-   inline T operator()(parameter_list_t params)
+   inline T operator()(parameter_list_t params) exprtk_test_override
    {
       vector_t v(params[0]);
       return std::accumulate(v.begin(), v.end(), T(0));
@@ -6339,7 +6357,7 @@ struct vecrebase_func : public exprtk::igeneric_function<T>
 };
 
 template <typename T>
-struct overload_func : exprtk::igeneric_function<T>
+struct overload_func exprtk_test_final : exprtk::igeneric_function<T>
 {
    typedef typename exprtk::igeneric_function<T> igfun_t;
    typedef typename igfun_t::parameter_list_t    parameter_list_t;
@@ -6362,7 +6380,7 @@ struct overload_func : exprtk::igeneric_function<T>
    }
 
    inline T operator()(const std::size_t& ps_index,
-                       parameter_list_t parameters)
+                       parameter_list_t parameters) exprtk_test_override
    {
       current_ps_index = ps_index;
       determine_param_seq(parameters);
@@ -6371,7 +6389,7 @@ struct overload_func : exprtk::igeneric_function<T>
 
    inline T operator()(const std::size_t& ps_index,
                        std::string& result,
-                       parameter_list_t parameters)
+                       parameter_list_t parameters) exprtk_test_override
    {
       current_ps_index = ps_index;
       determine_param_seq(parameters);
@@ -6420,7 +6438,7 @@ struct overload_func : exprtk::igeneric_function<T>
 
 struct vector_access_rtc_counter : public exprtk::vector_access_runtime_check
 {
-   virtual bool handle_runtime_violation(violation_context&)
+   bool handle_runtime_violation(violation_context&) exprtk_test_override
    {
       rtc_count++;
       return false;
@@ -6430,7 +6448,7 @@ struct vector_access_rtc_counter : public exprtk::vector_access_runtime_check
 };
 
 template <typename T>
-inline bool run_test18()
+bool run_test18()
 {
    {
       exprtk::symbol_table<T> symbol_table;
@@ -7484,7 +7502,7 @@ inline bool run_test18()
             return false;
          }
 
-         if (!exprtk::expression_helper<T>::is_constant(expression))
+         if (!exprtk::expression_helper<T>::is_literal(expression))
          {
             printf("run_test18() - Error: Expression did not compile to a constant! [1] Expression: %s\n",
                    expression_string.c_str());
@@ -8424,7 +8442,30 @@ inline bool run_test18()
 }
 
 template <typename T>
-inline bool run_test19()
+struct depth_to_str exprtk_test_final : public exprtk::igeneric_function<T>
+{
+   typedef exprtk::igeneric_function<T>           igenfunct_t;
+   typedef typename igenfunct_t::generic_type     generic_t;
+   typedef typename igenfunct_t::parameter_list_t parameter_list_t;
+   typedef typename generic_t::scalar_view        scalar_t;
+
+   depth_to_str()
+   : exprtk::igeneric_function<T>("T",igenfunct_t::e_rtrn_string)
+   {}
+
+   using igenfunct_t::operator();
+
+   inline T operator()(std::string& result,
+                       parameter_list_t parameters) exprtk_test_override
+   {
+
+      result = "depth" + exprtk::details::to_str(static_cast<int>(scalar_t(parameters[0])()));
+      return T(0);
+   }
+};
+
+template <typename T>
+bool run_test19()
 {
    typedef exprtk::symbol_table<T>         symbol_table_t;
    typedef exprtk::expression<T>           expression_t;
@@ -8438,32 +8479,32 @@ inline bool run_test19()
       compositor_t compositor;
 
       // f(x) = x + 2
-      compositor.add(function_t("f","x + 2","x"));
+      compositor.add(function_t("f", "x + 2", "x"));
 
       // g(x) = x^2-3
-      compositor.add(function_t("g","x^2 - 3","x"));
+      compositor.add(function_t("g", "x^2 - 3", "x"));
 
       // fof(x) = f(f(x))
-      compositor.add(function_t("fof","f(f(x))","x"));
+      compositor.add(function_t("fof", "f(f(x))", "x"));
 
       // gog(x) = g(g(x))
-      compositor.add(function_t("gog","g(g(x))","x"));
+      compositor.add(function_t("gog", "g(g(x))", "x"));
 
       // fog(x) = f(g(x))
-      compositor.add(function_t("fog","f(g(x))","x"));
+      compositor.add(function_t("fog", "f(g(x))", "x"));
 
       // gof(x) = g(f(x))
-      compositor.add(function_t("gof","g(f(x))","x"));
+      compositor.add(function_t("gof", "g(f(x))", "x"));
 
       // fogof(x) = f(g(f(x)))
-      compositor.add(function_t("fogof","f(g(f(x)))","x"));
+      compositor.add(function_t("fogof", "f(g(f(x)))", "x"));
 
       // gofog(x) = g(f(g(x)))
-      compositor.add(function_t("gofog","g(f(g(x)))","x"));
+      compositor.add(function_t("gofog", "g(f(g(x)))", "x"));
 
       symbol_table_t& symbol_table = compositor.symbol_table();
       symbol_table.add_constants();
-      symbol_table.add_variable("x",x);
+      symbol_table.add_variable("x", x);
 
       static const std::string expr_str_list[] =
       {
@@ -8487,7 +8528,7 @@ inline bool run_test19()
 
          parser_t parser;
 
-         if (!parser.compile(expr_str_list[i],expression))
+         if (!parser.compile(expr_str_list[i], expression))
          {
             printf("run_test19() - Error: %s   Expression: %s\n",
                    parser.error().c_str(),
@@ -8518,147 +8559,149 @@ inline bool run_test19()
       }
    }
 
-   const std::size_t rounds = 100;
-
-   for (std::size_t r = 0; r < rounds; ++r)
    {
-      T x = T(1);
-      T y = T(2);
-      T z = T(3);
-      T w = T(4);
-      T u = T(5);
-      T v = T(6);
+      const std::size_t rounds = 100;
 
-      compositor_t compositor;
-
-      // f0() = 6
-      compositor
-         .add(
-            function_t("f0")
-              .expression("3 * 2"));
-
-      // f1(x) = 5 * (f0 + x)
-      compositor
-         .add(
-            function_t("f1")
-              .var("x")
-              .expression("5 * (f0 + x)"));
-
-      // f2(x,y) = 7 * (f1(x) + f1(y))
-      compositor
-         .add(
-            function_t("f2")
-              .var("x").var("y")
-              .expression("7 * (f1(x) + f1(y))"));
-
-      // f3(x,y,z) = 9 * (f2(x,y) + f2(y,z) + f2(x,z))
-      compositor
-         .add(
-            function_t("f3")
-              .var("x").var("y").var("z")
-              .expression("9 * (f2(x,y) + f2(y,z) + f2(x,z))"));
-
-      // f4(x,y,z,w) = 11 * (f3(x,y,z) + f3(y,z,w) + f3(z,w,z))
-      compositor
-         .add(
-            function_t("f4")
-              .var("x").var("y").var("z").var("w")
-              .expression("11 * (f3(x,y,z) + f3(y,z,w) + f3(z,w,x))"));
-
-      // f5(x,y,z,w,u) = 13 * (f4(x,y,z,w) + f4(y,z,w,u) + f4(z,w,u,x) + f4(w,u,x,y))
-      compositor
-         .add(
-            function_t("f5")
-              .var("x").var("y").var("z").var("w").var("u")
-              .expression("13 * (f4(x,y,z,w) + f4(y,z,w,u) + f4(z,w,u,x) + f4(w,u,x,y))"));
-
-      // f6(x,y,z,w,u,v) = 17 * (f5(x,y,z,w,u) + f5(y,z,w,u,v) + f5(z,w,u,v,x) + f5(w,u,v,x,y))
-      compositor
-         .add(
-            function_t("f6")
-              .var("x").var("y").var("z")
-              .var("w").var("u").var("v")
-              .expression("17 * (f5(x,y,z,w,u) + f5(y,z,w,u,v) + f5(z,w,u,v,x) + f5(w,u,v,x,y))"));
-
-      symbol_table_t& symbol_table = compositor.symbol_table();
-      symbol_table.add_constants();
-      symbol_table.add_variable("x",x);
-      symbol_table.add_variable("y",y);
-      symbol_table.add_variable("z",z);
-      symbol_table.add_variable("w",w);
-      symbol_table.add_variable("u",u);
-      symbol_table.add_variable("v",v);
-
-      parser_t parser;
-
-      const std::string expr_str_list[] =
+      for (std::size_t r = 0; r < rounds; ++r)
       {
-         "f0()",
-         "f1(x)",
-         "f2(x,x)",
-         "f3(x,x,x)",
-         "f4(x,x,x,x)",
-         "f5(x,x,x,x,x)",
-         "f6(x,x,x,x,x,x)",
-         "f2(x,y)",
-         "f3(x,y,z)",
-         "f4(x,y,z,w)",
-         "f5(x,y,z,w,u)",
-         "f6(x,y,z,w,u,v)"
-      };
+         T x = T(1);
+         T y = T(2);
+         T z = T(3);
+         T w = T(4);
+         T u = T(5);
+         T v = T(6);
 
-      const std::size_t expr_str_list_size = sizeof(expr_str_list) / sizeof(std::string);
+         compositor_t compositor;
 
-      const T result_list[] =
-      {
-         T(6         ),
-         T(35        ),
-         T(490       ),
-         T(13230     ),
-         T(436590    ),
-         T(22702680  ),
-         T(1543782240),
-         T(525       ),
-         T(15120     ),
-         T(533610    ),
-         T(29459430  ),
-         T(2122700580)
-      };
+         // f0() = 6
+         compositor
+            .add(
+               function_t("f0")
+               .expression("3 * 2"));
 
-      bool error_found = false;
+         // f1(x) = 5 * (f0 + x)
+         compositor
+            .add(
+               function_t("f1")
+               .var("x")
+               .expression("5 * (f0 + x)"));
 
-      for (std::size_t i = 0; i < expr_str_list_size; ++i)
-      {
-         expression_t expression;
-         expression.register_symbol_table(symbol_table);
+         // f2(x,y) = 7 * (f1(x) + f1(y))
+         compositor
+            .add(
+               function_t("f2")
+               .var("x").var("y")
+               .expression("7 * (f1(x) + f1(y))"));
 
-         if (!parser.compile(expr_str_list[i],expression))
+         // f3(x,y,z) = 9 * (f2(x,y) + f2(y,z) + f2(x,z))
+         compositor
+            .add(
+               function_t("f3")
+               .var("x").var("y").var("z")
+               .expression("9 * (f2(x,y) + f2(y,z) + f2(x,z))"));
+
+         // f4(x,y,z,w) = 11 * (f3(x,y,z) + f3(y,z,w) + f3(z,w,z))
+         compositor
+            .add(
+               function_t("f4")
+               .var("x").var("y").var("z").var("w")
+               .expression("11 * (f3(x,y,z) + f3(y,z,w) + f3(z,w,x))"));
+
+         // f5(x,y,z,w,u) = 13 * (f4(x,y,z,w) + f4(y,z,w,u) + f4(z,w,u,x) + f4(w,u,x,y))
+         compositor
+            .add(
+               function_t("f5")
+               .var("x").var("y").var("z").var("w").var("u")
+               .expression("13 * (f4(x,y,z,w) + f4(y,z,w,u) + f4(z,w,u,x) + f4(w,u,x,y))"));
+
+         // f6(x,y,z,w,u,v) = 17 * (f5(x,y,z,w,u) + f5(y,z,w,u,v) + f5(z,w,u,v,x) + f5(w,u,v,x,y))
+         compositor
+            .add(
+               function_t("f6")
+               .var("x").var("y").var("z")
+               .var("w").var("u").var("v")
+               .expression("17 * (f5(x,y,z,w,u) + f5(y,z,w,u,v) + f5(z,w,u,v,x) + f5(w,u,v,x,y))"));
+
+         symbol_table_t& symbol_table = compositor.symbol_table();
+         symbol_table.add_constants();
+         symbol_table.add_variable("x", x);
+         symbol_table.add_variable("y", y);
+         symbol_table.add_variable("z", z);
+         symbol_table.add_variable("w", w);
+         symbol_table.add_variable("u", u);
+         symbol_table.add_variable("v", v);
+
+         parser_t parser;
+
+         const std::string expr_str_list[] =
          {
-            printf("run_test19() - Error: %s   Expression: %s\n",
-                   parser.error().c_str(),
-                   expr_str_list[i].c_str());
+            "f0()",
+            "f1(x)",
+            "f2(x,x)",
+            "f3(x,x,x)",
+            "f4(x,x,x,x)",
+            "f5(x,x,x,x,x)",
+            "f6(x,x,x,x,x,x)",
+            "f2(x,y)",
+            "f3(x,y,z)",
+            "f4(x,y,z,w)",
+            "f5(x,y,z,w,u)",
+            "f6(x,y,z,w,u,v)"
+         };
 
-            error_found = true;
-            continue;
+         const std::size_t expr_str_list_size = sizeof(expr_str_list) / sizeof(std::string);
+
+         const T result_list[] =
+         {
+            T(6),
+            T(35),
+            T(490),
+            T(13230),
+            T(436590),
+            T(22702680),
+            T(1543782240),
+            T(525),
+            T(15120),
+            T(533610),
+            T(29459430),
+            T(2122700580)
+         };
+
+         bool error_found = false;
+
+         for (std::size_t i = 0; i < expr_str_list_size; ++i)
+         {
+            expression_t expression;
+            expression.register_symbol_table(symbol_table);
+
+            if (!parser.compile(expr_str_list[i], expression))
+            {
+               printf("run_test19() - Error: %s   Expression: %s\n",
+                      parser.error().c_str(),
+                      expr_str_list[i].c_str());
+
+               error_found = true;
+               continue;
+            }
+
+            const T result = expression.value();
+
+            if (result_list[i] != result)
+            {
+               printf("run_test19() - Error in evaluation! (2) Expression: %s Expected: %10.1f\tResult: %10.1f\n",
+                      expr_str_list[i].c_str(),
+                      result_list[i],
+                      result);
+
+               error_found = true;
+               continue;
+            }
          }
 
-         const T result = expression.value();
-
-         if (result_list[i] != result)
+         if (error_found)
          {
-            printf("run_test19() - Error in evaluation! (2) Expression: %s Expected: %10.1f\tResult: %10.1f\n",
-                   expr_str_list[i].c_str(),
-                   result_list[i],
-                   result);
-
-            error_found = true;
-            continue;
+            return false;
          }
-      }
-
-      if (error_found)
-      {
-         return false;
       }
    }
 
@@ -9291,7 +9334,395 @@ inline bool run_test19()
             return false;
          }
       }
+   }
 
+   {
+      const std::pair<std::string,std::string> test_funcprog[] =
+      {
+         std::make_pair
+         (
+            " var s := depth_to_str(depth);         "
+            "                                       "
+            " if (depth > 0)                        "
+            " {                                     "
+            "    if (recursive(depth - 1) == false) "
+            "    {                                  "
+            "       return [false];                 "
+            "    }                                  "
+            " };                                    "
+            "                                       "
+            " s == depth_to_str(depth);             ",
+
+            " recursive(1000) "
+         ),
+
+         std::make_pair
+         (
+            " var v[7] := [ depth ];                "
+            "                                       "
+            " if (depth > 0)                        "
+            " {                                     "
+            "    if (recursive(depth - 1) == false) "
+            "    {                                  "
+            "       return [false];                 "
+            "    }                                  "
+            " };                                    "
+            "                                       "
+            " return [sum(v == depth) == v[]];      ",
+
+            " recursive(1000) "
+         ),
+
+         std::make_pair
+         (
+            " var v1[ 7] := [ depth ];              "
+            " var v2[21] := [ depth ];              "
+            "                                       "
+            " if (depth > 0)                        "
+            " {                                     "
+            "    if (recursive(depth - 1) == false) "
+            "    {                                  "
+            "       return [false];                 "
+            "    }                                  "
+            " };                                    "
+            "                                       "
+            " (sum(v1 == depth) == v1[]) and        "
+            " (sum(v2 == depth) == v2[]) ;          "
+            "                                       ",
+
+            " recursive(1000) "
+         ),
+
+         std::make_pair
+         (
+            " var s := depth_to_str(depth);            "
+            "                                          "
+            " for (var i := 0; i < 2; i += 1)          "
+            " {                                        "
+            "    if (depth > 0)                        "
+            "    {                                     "
+            "       if (recursive(depth - 1) == false) "
+            "       {                                  "
+            "          return [false];                 "
+            "       }                                  "
+            "    };                                    "
+            " };                                       "
+            "                                          "
+            " s == depth_to_str(depth);                ",
+
+            " recursive(20) "
+         ),
+
+         std::make_pair
+         (
+            " var s := depth_to_str(depth);               "
+            "                                             "
+            " for (var i := 0; i < 2; i += 1)             "
+            " {                                           "
+            "    for (var j := 0; j < 2; j += 1)          "
+            "    {                                        "
+            "       if (depth > 0)                        "
+            "       {                                     "
+            "          if (recursive(depth - 1) == false) "
+            "          {                                  "
+            "             return [false];                 "
+            "          }                                  "
+            "       };                                    "
+            "    };                                       "
+            " };                                          "
+            "                                             "
+            " s == depth_to_str(depth);                   ",
+
+            " recursive(10) "
+         ),
+
+         std::make_pair
+         (
+            " var v[7] := [ depth ];                   "
+            "                                          "
+            " for (var i := 0; i < 2; i += 1)          "
+            " {                                        "
+            "    var w[21] := [ depth + 1 ];           "
+            "                                          "
+            "    if (depth > 0)                        "
+            "    {                                     "
+            "       if (recursive(depth - 1) == false) "
+            "       {                                  "
+            "          return [false];                 "
+            "       }                                  "
+            "    };                                    "
+            "                                          "
+            "    if (sum(w == (depth + 1)) != w[])     "
+            "    {                                     "
+            "       return [false];                    "
+            "    };                                    "
+            " };                                       "
+            "                                          "
+            " return [sum(v == depth) == v[]];         ",
+
+            " recursive(5) "
+         ),
+
+         std::make_pair
+         (
+            " var v[7] := [ depth ];                      "
+            "                                             "
+            " for (var i := 0; i < 2; i += 1)             "
+            " {                                           "
+            "    var u[21] := [ depth + 1 ];              "
+            "                                             "
+            "    for (var j := 0; j < 2; j += 1)          "
+            "    {                                        "
+            "       var w[35] := [ depth + 2 ];           "
+            "                                             "
+            "       if (depth > 0)                        "
+            "       {                                     "
+            "          if (recursive(depth - 1) == false) "
+            "          {                                  "
+            "             return [false];                 "
+            "          }                                  "
+            "       };                                    "
+            "                                             "
+            "       if (sum(w == (depth + 2)) != w[])     "
+            "       {                                     "
+            "          return [false];                    "
+            "       };                                    "
+            "    };                                       "
+            "                                             "
+            "    if (sum(u == (depth + 1)) != u[])        "
+            "    {                                        "
+            "       return [false];                       "
+            "    };                                       "
+            " };                                          "
+            "                                             "
+            " return [sum(v == depth) == v[]];            ",
+
+            " recursive(5) "
+         ),
+
+         std::make_pair
+         (
+            " var s    := depth_to_str(depth);      "
+            " var v[7] := [ depth ];                "
+            "                                       "
+            " if (depth > 0)                        "
+            " {                                     "
+            "    if (recursive(depth - 1) == false) "
+            "    {                                  "
+            "       return [false];                 "
+            "    }                                  "
+            " };                                    "
+            "                                       "
+            " return                                "
+            " [                                     "
+            "    (s == depth_to_str(depth)) and     "
+            "    (sum(v == depth) == v[])           "
+            " ];                                    ",
+
+            " recursive(1000) "
+         ),
+
+         std::make_pair
+         (
+            " var s0     := depth_to_str(depth);    "
+            " var v0[7]  := [ depth ];              "
+            " var s1     := depth_to_str(depth);    "
+            " var v1[42] := [ depth ];              "
+            "                                       "
+            " if (depth > 0)                        "
+            " {                                     "
+            "    if (recursive(depth - 1) == false) "
+            "    {                                  "
+            "       return [false];                 "
+            "    }                                  "
+            " };                                    "
+            "                                       "
+            " return                                "
+            " [                                     "
+            "    (s0 == depth_to_str(depth)) and    "
+            "    (sum(v0 == depth) == v0[])  and    "
+            "    (s1 == depth_to_str(depth)) and    "
+            "    (sum(v1 == depth) == v1[])         "
+            " ];                                    ",
+
+            " recursive(1000) "
+         ),
+
+         std::make_pair
+         (
+            " var s    := depth_to_str(depth);         "
+            " var v[7] := [ depth ];                   "
+            "                                          "
+            " for (var i := 0; i < 2; i += 1)          "
+            " {                                        "
+            "    if (depth > 0)                        "
+            "    {                                     "
+            "       if (recursive(depth - 1) == false) "
+            "       {                                  "
+            "          return [false];                 "
+            "       }                                  "
+            "    };                                    "
+            " };                                       "
+            "                                          "
+            " return                                   "
+            " [                                        "
+            "    (s == depth_to_str(depth)) and        "
+            "    (sum(v == depth) == v[])              "
+            " ];                                       ",
+
+            " recursive(15) "
+         ),
+
+         std::make_pair
+         (
+            " var s0     := depth_to_str(depth);       "
+            " var v0[7]  := [ depth ];                 "
+            " var s1     := depth_to_str(depth);       "
+            " var v1[42] := [ depth ];                 "
+            "                                          "
+            " for (var i := 0; i < 2; i += 1)          "
+            " {                                        "
+            "    if (depth > 0)                        "
+            "    {                                     "
+            "       if (recursive(depth - 1) == false) "
+            "       {                                  "
+            "          return [false];                 "
+            "       }                                  "
+            "    };                                    "
+            " };                                       "
+            "                                          "
+            " return                                   "
+            " [                                        "
+            "    (s0 == depth_to_str(depth)) and       "
+            "    (sum(v0 == depth) == v0[])  and       "
+            "    (s1 == depth_to_str(depth)) and       "
+            "    (sum(v1 == depth) == v1[])            "
+            " ];                                       ",
+
+            " recursive(15) "
+         ),
+
+         std::make_pair
+         (
+            " var s0    := depth_to_str(depth);        "
+            " var v0[7] := [ depth ];                  "
+            "                                          "
+            " for (var i := 0; i < 2; i += 1)          "
+            " {                                        "
+            "    var s1     := depth_to_str(depth);    "
+            "    var v1[21] := [ depth + 1 ];          "
+            "                                          "
+            "    if (depth > 0)                        "
+            "    {                                     "
+            "       if (recursive(depth - 1) == false) "
+            "       {                                  "
+            "          return [false];                 "
+            "       }                                  "
+            "    };                                    "
+            "                                          "
+            "    if (s1 != depth_to_str(depth))        "
+            "    {                                     "
+            "       return [false];                    "
+            "    };                                    "
+            "                                          "
+            "    if (sum(v1 == (depth + 1)) != v1[])   "
+            "    {                                     "
+            "       return [false];                    "
+            "    };                                    "
+            " };                                       "
+            "                                          "
+            " return                                   "
+            " [                                        "
+            "    (s0 == depth_to_str(depth)) and       "
+            "    (sum(v0 == depth) == v0[])            "
+            " ];                                       ",
+
+            " recursive(15) "
+         ),
+
+         std::make_pair
+         (
+            " if (depth < 2)                  "
+            "    depth;                       "
+            " else                            "
+            "    recursive(depth - 1) +       "
+            "    recursive(depth - 2) ;       ",
+
+            " var n     := 20;                "
+            " var total := 0;                 "
+            "                                 "
+            " for (var i := 0; i < n; i += 1) "
+            " {                               "
+            "    total += recursive(i);       "
+            " };                              "
+            "                                 "
+            " total == 10945;                 "
+         )
+      };
+
+      const std::size_t test_funcprog_size = sizeof(test_funcprog) / sizeof(std::pair<std::string,std::string>);
+      const std::size_t rounds = 5;
+
+      bool result = true;
+
+      for (std::size_t r = 0; r < rounds; ++r)
+      {
+         for (std::size_t i = 0; i < test_funcprog_size; ++i)
+         {
+            depth_to_str<T> dts;
+
+            symbol_table_t symbol_table;
+            symbol_table.add_function("depth_to_str",dts);
+
+            compositor_t compositor(symbol_table);
+
+            const bool comp_result = compositor.add(
+               function_t("recursive")
+               .var("depth")
+               .expression
+               ( test_funcprog[i].first ));
+
+            if (!comp_result)
+            {
+               printf("run_test19() - Compositor Error: %s\nfunction: %s\n",
+                      compositor.error().c_str(),
+                      test_funcprog[i].first.c_str());
+
+               result = false;
+               continue;
+            }
+
+            expression_t expression;
+            expression.register_symbol_table(symbol_table);
+
+            parser_t parser;
+
+            if (!parser.compile(test_funcprog[i].second, expression))
+            {
+               printf("run_test19() - Error: %s   Expression: %s\n",
+                      parser.error().c_str(),
+                      test_funcprog[i].second.c_str());
+
+               result = false;
+               continue;
+            }
+
+            if (T(1) != expression.value())
+            {
+               printf("run_test19() - Evaluation Error: test_funcprog %d  function: %s\n",
+                      static_cast<int>(i),
+                      test_funcprog[i].second.c_str());
+
+               result = false;
+               continue;
+            }
+         }
+
+         if (!result)
+         {
+            return false;
+         }
+      }
    }
 
    {
@@ -9396,14 +9827,17 @@ inline bool run_test19()
 }
 
 template <typename T>
-struct my_usr : public exprtk::parser<T>::unknown_symbol_resolver
+struct my_usr exprtk_test_final : public exprtk::parser<T>::unknown_symbol_resolver
 {
    typedef typename exprtk::parser<T>::unknown_symbol_resolver usr_t;
+   typedef typename usr_t::usr_symbol_type usr_symbol_type;
+
+   using usr_t::process;
 
    bool process(const std::string& unknown_symbol,
-                typename usr_t::usr_symbol_type& st,
+                usr_symbol_type& st,
                 T& default_value,
-                std::string& error_message)
+                std::string& error_message) exprtk_test_override
    {
       if (unknown_symbol[0] == 'v')
       {
@@ -9440,18 +9874,20 @@ struct my_usr : public exprtk::parser<T>::unknown_symbol_resolver
 };
 
 template <typename T>
-struct my_usr_ext : public exprtk::parser<T>::unknown_symbol_resolver
+struct my_usr_ext exprtk_test_final : public exprtk::parser<T>::unknown_symbol_resolver
 {
    typedef exprtk::symbol_table<T> symbol_table_t;
    typedef typename exprtk::parser<T>::unknown_symbol_resolver usr_t;
+
+   using usr_t::process;
 
    my_usr_ext()
    : usr_t(usr_t::e_usrmode_extended)
    {}
 
-   virtual bool process(const std::string& unknown_symbol,
-                        symbol_table_t&      symbol_table,
-                        std::string&        error_message)
+   bool process(const std::string& unknown_symbol,
+                symbol_table_t&    symbol_table,
+                std::string&       error_message) exprtk_test_override
    {
       bool result = false;
 
@@ -9513,7 +9949,7 @@ struct my_usr_ext : public exprtk::parser<T>::unknown_symbol_resolver
 };
 
 template <typename T>
-inline bool run_test20()
+bool run_test20()
 {
    typedef exprtk::expression<T> expression_t;
 
@@ -9911,7 +10347,7 @@ private:
 
 
 template <typename T>
-inline bool run_test21()
+bool run_test21()
 {
    typedef exprtk::symbol_table<T> symbol_table_t;
    typedef exprtk::expression<T>   expression_t;
@@ -10344,7 +10780,7 @@ inline bool run_test21()
          std::make_pair<std::string,bool>("z == (w += y / x)"    , false)
       };
 
-      const std::size_t expressions_size = sizeof(expressions) / sizeof(test_t);
+      const std::size_t expressions_size = sizeof(expressions) / sizeof(local_test_t);
 
       bool error_found = false;
 
@@ -11097,6 +11533,1104 @@ inline bool run_test21()
    return true;
 }
 
+struct assert_handler exprtk_test_final : public exprtk::assert_check
+{
+   std::size_t assert_count;
+   void handle_assert(const assert_context& /*context*/) exprtk_test_override
+   {
+      ++assert_count;
+   }
+};
+
+template <typename T>
+bool run_test22()
+{
+   typedef exprtk::symbol_table<T> symbol_table_t;
+   typedef exprtk::expression<T>   expression_t;
+   typedef exprtk::parser<T>       parser_t;
+
+   bool result = true;
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(1 > 1);                                             ",
+         " assert(1 > 2, 'assert statement 2');                       ",
+         " assert(1 > 3, 'assert ' + 'statement 3');                  ",
+         " assert(1 > 4, 'assert ' + 'statement 4', 'Assert04');      ",
+         " assert(1 > 5, 'assert ' + 'statement 5');                  ",
+         " assert(1 > 6, 'assert ' + 'statement 6', 'Assert' + '06'); "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         expression_t expression;
+         parser_t parser;
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [1]\n",
+                  parser.error().c_str(),
+                  expressions[i].c_str());
+            result = false;
+            continue;
+         }
+         else if (!exprtk::expression_helper<T>::is_null(expression))
+         {
+            printf("run_test22() - Error: Expression is not null! expression: %s [1]\n",
+                  expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(1 > 1); 1 + 0                                             ",
+         " assert(1 > 2, 'assert statement 2');  2 + 0                      ",
+         " assert(1 > 3, 'assert ' + 'statement 3'); 3 + 0                  ",
+         " assert(1 > 4, 'assert ' + 'statement 4', 'Assert04'); 4 + 0      ",
+         " assert(1 > 5, 'assert ' + 'statement 5'); 5 + 0                  ",
+         " assert(1 > 6, 'assert ' + 'statement 6', 'Assert' + '06'); 6 + 0 "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         expression_t expression;
+         parser_t parser;
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [2]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+         else if (!exprtk::expression_helper<T>::is_literal(expression))
+         {
+            printf("run_test22() - Error: Expression is not constant! expression: %s [2]\n",
+                   expressions[i].c_str());
+            continue;
+         }
+
+         expression.value();
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(1 > 1);                                             "
+         " assert(1 > 2, 'assert statement 2');                       "
+         " assert(1 > 3, 'assert ' + 'statement 3');                  "
+         " assert(1 > 4, 'assert ' + 'statement 4', 'Assert04');      "
+         " assert(1 > 5, 'assert ' + 'statement 5');                  "
+         " assert(1 > 6, 'assert ' + 'statement 6', 'Assert' + '06'); "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         expression_t expression;
+         parser_t parser;
+         assert_handler handler;
+
+         handler.assert_count = 0;
+
+         parser.register_assert_check(handler);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [3]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+
+         typedef typename exprtk::expression_helper<T> et_t;
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+
+         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         {
+            printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [3]\n",
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+
+         if (6 != handler.assert_count)
+         {
+            printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: %s [3]\n",
+                   static_cast<int>(handler.assert_count),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(1 > 1); 1                                             ",
+         " assert(1 > 2, 'assert statement 2'); 2                       ",
+         " assert(1 > 3, 'assert ' + 'statement 3'); 3                  ",
+         " assert(1 > 4, 'assert ' + 'statement 4', 'Assert04'); 4      ",
+         " assert(1 > 5, 'assert ' + 'statement 5'); 5                  ",
+         " assert(1 > 6, 'assert ' + 'statement 6', 'Assert' + '06'); 6 "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         expression_t expression;
+         parser_t parser;
+         assert_handler handler;
+
+         handler.assert_count = 0;
+
+         parser.register_assert_check(handler);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [4]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+
+         typedef typename exprtk::expression_helper<T> et_t;
+         type_sequence.push_back(et_t::e_assert );
+         type_sequence.push_back(et_t::e_literal);
+
+         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         {
+            printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [4]\n",
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+
+         if (1 != handler.assert_count)
+         {
+            printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: %s [4]\n",
+                   static_cast<int>(handler.assert_count),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(1 > 1); 1 + 0                                             ",
+         " assert(1 > 2, 'assert statement 2');  2 + 0                      ",
+         " assert(1 > 3, 'assert ' + 'statement 3'); 3 + 0                  ",
+         " assert(1 > 4, 'assert ' + 'statement 4', 'Assert04'); 4 + 0      ",
+         " assert(1 > 5, 'assert ' + 'statement 5'); 5 + 0                  ",
+         " assert(1 > 6, 'assert ' + 'statement 6', 'Assert' + '06'); 6 + 0 "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         expression_t expression;
+         parser_t parser;
+         assert_handler handler;
+
+         handler.assert_count = 0;
+
+         parser.register_assert_check(handler);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [5]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+
+         typedef typename exprtk::expression_helper<T> et_t;
+         type_sequence.push_back(et_t::e_assert );
+         type_sequence.push_back(et_t::e_literal);
+
+         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         {
+            printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [5]\n",
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+
+         if (1 != handler.assert_count)
+         {
+            printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: %s [5]\n",
+                   static_cast<int>(handler.assert_count),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(1 > 1); 'assert statement 0001'                                             ",
+         " assert(1 > 2, 'assert statement 2'); 'assert statement 0002'                       ",
+         " assert(1 > 3, 'assert ' + 'statement 3'); 'assert statement 0003'                  ",
+         " assert(1 > 4, 'assert ' + 'statement 4', 'Assert04'); 'assert statement 0004'      ",
+         " assert(1 > 5, 'assert ' + 'statement 5'); 'assert statement 0005'                  ",
+         " assert(1 > 6, 'assert ' + 'statement 6', 'Assert' + '06'); 'assert statement 0006' "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         expression_t expression;
+         parser_t parser;
+         assert_handler handler;
+
+         handler.assert_count = 0;
+
+         parser.register_assert_check(handler);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [6]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+
+         typedef typename exprtk::expression_helper<T> et_t;
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_string);
+
+         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         {
+            printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [6]\n",
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+
+         if (1 != handler.assert_count)
+         {
+            printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: %s [6]\n",
+                   static_cast<int>(handler.assert_count),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(1 > 1); 'assert statement' + '0001'                                             ",
+         " assert(1 > 2, 'assert statement 2'); 'assert statement' + '0002'                       ",
+         " assert(1 > 3, 'assert ' + 'statement 3'); 'assert statement' + '0003'                  ",
+         " assert(1 > 4, 'assert ' + 'statement 4', 'Assert04'); 'assert statement' + '0004'      ",
+         " assert(1 > 5, 'assert ' + 'statement 5'); 'assert statement' + '0005'                  ",
+         " assert(1 > 6, 'assert ' + 'statement 6', 'Assert' + '06'); 'assert statement' + '0006' "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         expression_t expression;
+         parser_t parser;
+         assert_handler handler;
+
+         handler.assert_count = 0;
+
+         parser.register_assert_check(handler);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [7]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+
+         typedef typename exprtk::expression_helper<T> et_t;
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_string);
+
+         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         {
+            printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [7]\n",
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+
+         if (1 != handler.assert_count)
+         {
+            printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: %s [7]\n",
+                   static_cast<int>(handler.assert_count),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(x > y);                                             ",
+         " assert(x > y, 'assert statement 2');                       ",
+         " assert(x > y, 'assert ' + 'statement 3');                  ",
+         " assert(x > y, 'assert ' + 'statement 4', 'Assert04');      ",
+         " assert(x > y, 'assert ' + 'statement 5');                  ",
+         " assert(x > y, 'assert ' + 'statement 6', 'Assert' + '06'); "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         T x = T(1);
+         T y = T(2);
+
+         symbol_table_t symbol_table;
+         expression_t   expression;
+         parser_t       parser;
+
+         symbol_table.add_variable("x", x);
+         symbol_table.add_variable("y", y);
+         expression.register_symbol_table(symbol_table);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [8]\n",
+                  parser.error().c_str(),
+                  expressions[i].c_str());
+            result = false;
+            continue;
+         }
+         else if (!exprtk::expression_helper<T>::is_null(expression))
+         {
+            printf("run_test22() - Error: Expression is not null! expression: %s [8]\n",
+                  expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(x > y); 1 + 0                                             ",
+         " assert(x > y, 'assert statement 2');  2 + 0                      ",
+         " assert(x > y, 'assert ' + 'statement 3'); 3 + 0                  ",
+         " assert(x > y, 'assert ' + 'statement 4', 'Assert04'); 4 + 0      ",
+         " assert(x > y, 'assert ' + 'statement 5'); 5 + 0                  ",
+         " assert(x > y, 'assert ' + 'statement 6', 'Assert' + '06'); 6 + 0 "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         T x = T(1);
+         T y = T(2);
+
+         symbol_table_t symbol_table;
+         expression_t   expression;
+         parser_t       parser;
+
+         symbol_table.add_variable("x", x);
+         symbol_table.add_variable("y", y);
+         expression.register_symbol_table(symbol_table);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [9]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+         else if (!exprtk::expression_helper<T>::is_literal(expression))
+         {
+            printf("run_test22() - Error: Expression is not constant! expression: %s [9]\n",
+                   expressions[i].c_str());
+            continue;
+         }
+
+         expression.value();
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(x > y);                                             "
+         " assert(x > y, 'assert statement 2');                       "
+         " assert(x > y, 'assert ' + 'statement 3');                  "
+         " assert(x > y, 'assert ' + 'statement 4', 'Assert04');      "
+         " assert(x > y, 'assert ' + 'statement 5');                  "
+         " assert(x > y, 'assert ' + 'statement 6', 'Assert' + '06'); "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         T x = T(1);
+         T y = T(2);
+
+         symbol_table_t symbol_table;
+         expression_t   expression;
+         parser_t       parser;
+         assert_handler handler;
+
+         handler.assert_count = 0;
+
+         symbol_table.add_variable("x", x);
+         symbol_table.add_variable("y", y);
+         expression.register_symbol_table(symbol_table);
+
+         parser.register_assert_check(handler);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [10]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+
+         typedef typename exprtk::expression_helper<T> et_t;
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+
+         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         {
+            printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [10]\n",
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+
+         if (6 != handler.assert_count)
+         {
+            printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: %s [10]\n",
+                   static_cast<int>(handler.assert_count),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(x > y); 1                                             ",
+         " assert(x > y, 'assert statement 2'); 2                       ",
+         " assert(x > y, 'assert ' + 'statement 3'); 3                  ",
+         " assert(x > y, 'assert ' + 'statement 4', 'Assert04'); 4      ",
+         " assert(x > y, 'assert ' + 'statement 5'); 5                  ",
+         " assert(x > y, 'assert ' + 'statement 6', 'Assert' + '06'); 6 "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         T x = T(1);
+         T y = T(2);
+
+         symbol_table_t symbol_table;
+         expression_t   expression;
+         parser_t       parser;
+         assert_handler handler;
+
+         handler.assert_count = 0;
+
+         symbol_table.add_variable("x", x);
+         symbol_table.add_variable("y", y);
+         expression.register_symbol_table(symbol_table);
+
+         parser.register_assert_check(handler);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [11]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+
+         typedef typename exprtk::expression_helper<T> et_t;
+         type_sequence.push_back(et_t::e_assert );
+         type_sequence.push_back(et_t::e_literal);
+
+         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         {
+            printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [11]\n",
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+
+         if (1 != handler.assert_count)
+         {
+            printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: %s [11]\n",
+                   static_cast<int>(handler.assert_count),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(x > y); 1 + 0                                             ",
+         " assert(x > y, 'assert statement 2');  2 + 0                      ",
+         " assert(x > y, 'assert ' + 'statement 3'); 3 + 0                  ",
+         " assert(x > y, 'assert ' + 'statement 4', 'Assert04'); 4 + 0      ",
+         " assert(x > y, 'assert ' + 'statement 5'); 5 + 0                  ",
+         " assert(x > y, 'assert ' + 'statement 6', 'Assert' + '06'); 6 + 0 "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         T x = T(1);
+         T y = T(2);
+
+         symbol_table_t symbol_table;
+         expression_t   expression;
+         parser_t       parser;
+         assert_handler handler;
+
+         handler.assert_count = 0;
+
+         symbol_table.add_variable("x", x);
+         symbol_table.add_variable("y", y);
+         expression.register_symbol_table(symbol_table);
+
+         parser.register_assert_check(handler);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [12]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+
+         typedef typename exprtk::expression_helper<T> et_t;
+         type_sequence.push_back(et_t::e_assert );
+         type_sequence.push_back(et_t::e_literal);
+
+         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         {
+            printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [12]\n",
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+
+         if (1 != handler.assert_count)
+         {
+            printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: %s [12]\n",
+                   static_cast<int>(handler.assert_count),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(x > y); 'assert statement 0001'                                             ",
+         " assert(x > y, 'assert statement 2'); 'assert statement 0002'                       ",
+         " assert(x > y, 'assert ' + 'statement 3'); 'assert statement 0003'                  ",
+         " assert(x > y, 'assert ' + 'statement 4', 'Assert04'); 'assert statement 0004'      ",
+         " assert(x > y, 'assert ' + 'statement 5'); 'assert statement 0005'                  ",
+         " assert(x > y, 'assert ' + 'statement 6', 'Assert' + '06'); 'assert statement 0006' "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         T x = T(1);
+         T y = T(2);
+
+         symbol_table_t symbol_table;
+         expression_t   expression;
+         parser_t       parser;
+         assert_handler handler;
+
+         handler.assert_count = 0;
+
+         symbol_table.add_variable("x", x);
+         symbol_table.add_variable("y", y);
+         expression.register_symbol_table(symbol_table);
+
+         parser.register_assert_check(handler);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [13]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+
+         typedef typename exprtk::expression_helper<T> et_t;
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_string);
+
+         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         {
+            printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [13]\n",
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+
+         if (1 != handler.assert_count)
+         {
+            printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: %s [13]\n",
+                   static_cast<int>(handler.assert_count),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(x > y); 'assert statement' + '0001'                                             ",
+         " assert(x > y, 'assert statement 2'); 'assert statement' + '0002'                       ",
+         " assert(x > y, 'assert ' + 'statement 3'); 'assert statement' + '0003'                  ",
+         " assert(x > y, 'assert ' + 'statement 4', 'Assert04'); 'assert statement' + '0004'      ",
+         " assert(x > y, 'assert ' + 'statement 5'); 'assert statement' + '0005'                  ",
+         " assert(x > y, 'assert ' + 'statement 6', 'Assert' + '06'); 'assert statement' + '0006' "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         T x = T(1);
+         T y = T(2);
+
+         symbol_table_t symbol_table;
+         expression_t   expression;
+         parser_t       parser;
+         assert_handler handler;
+
+         handler.assert_count = 0;
+
+         symbol_table.add_variable("x", x);
+         symbol_table.add_variable("y", y);
+         expression.register_symbol_table(symbol_table);
+
+         parser.register_assert_check(handler);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [14]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+
+         typedef typename exprtk::expression_helper<T> et_t;
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_string);
+
+         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         {
+            printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [14]\n",
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+
+         if (1 != handler.assert_count)
+         {
+            printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: %s [14]\n",
+                   static_cast<int>(handler.assert_count),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(1 > 1); 1 + 0;                                             "
+         " assert(1 > 2, 'assert statement 2'); 2 + 0;                       "
+         " assert(1 > 3, 'assert ' + 'statement 3'); 3 + 0;                  "
+         " assert(1 > 4, 'assert ' + 'statement 4', 'Assert04'); 4 + 0;      "
+         " assert(1 > 5, 'assert ' + 'statement 5'); 5 + 0                   "
+         " assert(1 > 6, 'assert ' + 'statement 6', 'Assert' + '06'); 6 + 0; "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         expression_t expression;
+         parser_t parser;
+         assert_handler handler;
+
+         handler.assert_count = 0;
+
+         parser.register_assert_check(handler);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [15]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+
+         typedef typename exprtk::expression_helper<T> et_t;
+         type_sequence.push_back(et_t::e_assert );
+         type_sequence.push_back(et_t::e_assert );
+         type_sequence.push_back(et_t::e_assert );
+         type_sequence.push_back(et_t::e_assert );
+         type_sequence.push_back(et_t::e_assert );
+         type_sequence.push_back(et_t::e_assert );
+         type_sequence.push_back(et_t::e_literal);
+
+         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         {
+            printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [15]\n",
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+
+         if (6 != handler.assert_count)
+         {
+            printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: %s [15]\n",
+                   static_cast<int>(handler.assert_count),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(1 > 1); 'assert' + '01';                                             "
+         " assert(1 > 2, 'assert statement 2'); 'assert' + '02';                       "
+         " assert(1 > 3, 'assert ' + 'statement 3'); 'assert' + '03';                  "
+         " assert(1 > 4, 'assert ' + 'statement 4', 'Assert04'); 'assert' + '04';      "
+         " assert(1 > 5, 'assert ' + 'statement 5'); 'assert' + '05';                  "
+         " assert(1 > 6, 'assert ' + 'statement 6', 'Assert' + '06'); 'assert' + '06'; "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         expression_t expression;
+         parser_t parser;
+         assert_handler handler;
+
+         handler.assert_count = 0;
+
+         parser.register_assert_check(handler);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [16]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+
+         typedef typename exprtk::expression_helper<T> et_t;
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_string);
+
+         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         {
+            printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [16]\n",
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+
+         if (6 != handler.assert_count)
+         {
+            printf("run_test22() - Error: Invalid assert count of %d expected 1. Expression: %s [16]\n",
+                   static_cast<int>(handler.assert_count),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(x > y); x + y + 1;                                             "
+         " assert(x > y, 'assert statement 2'); x + y + 1;                       "
+         " assert(x > y, 'assert ' + 'statement 3'); x + y + 1;                  "
+         " assert(x > y, 'assert ' + 'statement 4', 'Assert04'); x + y + 1;      "
+         " assert(x > y, 'assert ' + 'statement 5'); x + y + 1;                  "
+         " assert(x > y, 'assert ' + 'statement 6', 'Assert' + '06'); x + y + 1; "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         T x = T(1);
+         T y = T(2);
+
+         symbol_table_t symbol_table;
+         expression_t   expression;
+         parser_t       parser;
+         assert_handler handler;
+
+         handler.assert_count = 0;
+
+         symbol_table.add_variable("x", x);
+         symbol_table.add_variable("y", y);
+         expression.register_symbol_table(symbol_table);
+
+         parser.register_assert_check(handler);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [17]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+
+         typedef typename exprtk::expression_helper<T> et_t;
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_sf3ext);
+
+         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         {
+            printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [17]\n",
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+
+         if (6 != handler.assert_count)
+         {
+            printf("run_test22() - Error: Invalid assert count of %d expected 6. Expression: %s [17]\n",
+                   static_cast<int>(handler.assert_count),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   {
+      const std::string expressions[] =
+      {
+         " assert(x > y); 'assert' + ((x < y) ? '01' : 'XYZ');                                             "
+         " assert(x > y, 'assert statement 2'); 'assert' + ((x < y) ? '02' : 'XYZ');                       "
+         " assert(x > y, 'assert ' + 'statement 3'); 'assert' + ((x < y) ? '03' : 'XYZ');                  "
+         " assert(x > y, 'assert ' + 'statement 4', 'Assert04'); 'assert' + ((x < y) ? '04' : 'XYZ');      "
+         " assert(x > y, 'assert ' + 'statement 5'); 'assert' + ((x < y) ? '05' : 'XYZ');                  "
+         " assert(x > y, 'assert ' + 'statement 6', 'Assert' + '06'); 'assert' + ((x < y) ? '06' : 'XYZ'); "
+      };
+
+      const std::size_t expression_count = sizeof(expressions) / sizeof(std::string);
+
+      for (std::size_t i = 0; i < expression_count; ++i)
+      {
+         T x = T(1);
+         T y = T(2);
+
+         symbol_table_t symbol_table;
+         expression_t   expression;
+         parser_t       parser;
+         assert_handler handler;
+
+         handler.assert_count = 0;
+
+         symbol_table.add_variable("x", x);
+         symbol_table.add_variable("y", y);
+         expression.register_symbol_table(symbol_table);
+
+         parser.register_assert_check(handler);
+
+         if (!parser.compile(expressions[i], expression))
+         {
+            printf("run_test22() - Error: %s\tExpression: %s [18]\n",
+                   parser.error().c_str(),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         std::vector<typename exprtk::expression_helper<T>::node_types> type_sequence;
+
+         typedef typename exprtk::expression_helper<T> et_t;
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_assert);
+         type_sequence.push_back(et_t::e_string);
+
+         if (!exprtk::expression_helper<T>::match_type_sequence(expression,type_sequence))
+         {
+            printf("run_test22() - Error: Expression failed to match type sequence. Expression: %s [18]\n",
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+
+         expression.value();
+
+         if (6 != handler.assert_count)
+         {
+            printf("run_test22() - Error: Invalid assert count of %d expected 6. Expression: %s [18]\n",
+                   static_cast<int>(handler.assert_count),
+                   expressions[i].c_str());
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   return result;
+}
+
 template <typename T>
 struct type_name { static inline std::string value() { return "unknown"; } };
 template <> struct type_name<float>       { static inline std::string value() { return "float";       } };
@@ -11157,6 +12691,7 @@ int main(int argc, char*argv[])
    perform_test( numeric_type, 19 )
    perform_test( numeric_type, 20 )
    perform_test( numeric_type, 21 )
+   perform_test( numeric_type, 22 )
 
    #undef perform_test
 

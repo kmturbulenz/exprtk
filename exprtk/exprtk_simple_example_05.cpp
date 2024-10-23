@@ -32,14 +32,14 @@ struct myfunc : public exprtk::ifunction<T>
    : exprtk::ifunction<T>(2)
    { exprtk::disable_has_side_effects(*this); }
 
-   inline T operator()(const T& v1, const T& v2)
+   T operator()(const T& v1, const T& v2)
    {
       return T(1) + (v1 * v2) / T(3);
    }
 };
 
 template <typename T>
-inline T myotherfunc(T v0, T v1, T v2)
+T myotherfunc(T v0, T v1, T v2)
 {
    return std::abs(v0 - v1) * v2;
 }
