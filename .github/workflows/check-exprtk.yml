@@ -28,6 +28,8 @@ jobs:
     # Check if issue exist with that checksum in title
     - name: Check if issue exist
       if: ${{ steps.check.outputs.status != 0 }}
+      env:
+        GH_TOKEN: ${{ github.token }}
       id: check-issue
       run: |
         SHASUM=$(sha256sum exprtk.zip | awk '{print $1}')
@@ -40,9 +42,8 @@ jobs:
       if: ${{ steps.check.outputs.status != 0 && steps.check-issue.outputs.num_issues == 0 }}
       env:
         SHASUM: ${{ steps.check-issue.outputs.shasum }}
+        GH_TOKEN: ${{ github.token }}
       run: |
-        unzip -o exprtk.zip
-        git diff > exprtk.patch
         echo "New version found at date $(date +%Y-%m-%d)" > issue-body.txt
         echo "" >> issue-body.txt
         echo "Checksum of \`exprtk.zip\`:" >> issue-body.txt
@@ -50,8 +51,4 @@ jobs:
         echo $SHASUM >> issue-body.txt
         echo "\`\`\`" >> issue-body.txt
         echo "" >> issue-body.txt
-        echo "Diff against commit \`$(git rev-parse --short HEAD)\`:" >> issue-body.txt
-        echo "\`\`\`" >> issue-body.txt
-        echo $(cat exprtk.patch) >> issue-body.txt
-        echo "\`\`\`" >> issue-body.txt
         gh issue create --title "New version: ${SHASUM:0:8} at $(date +%Y-%m-%d)" --label "New version" --body-file issue-body.txt
