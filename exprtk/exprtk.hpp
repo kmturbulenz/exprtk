@@ -6158,6 +6158,7 @@ namespace exprtk
                      depth = std::max(depth, compute_node_depth(branch_list[i]));
                   }
                }
+
                depth_set = true;
             }
 
@@ -25487,6 +25488,7 @@ namespace exprtk
             {
                for (std::size_t i = 0; i < deq_.size(); ++i)
                {
+                  exprtk_debug(("~scoped_deq_delete() - deleting node: %p\n", reinterpret_cast<void*>(deq_[i])));
                   free_node(parser_.node_allocator_,deq_[i]);
                }
 
