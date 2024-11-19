@@ -1100,27 +1100,27 @@ static const test_t global_test_list[] =
    test_t("((1 + 1) < (3 + 3) ? 7 : 9) == 7",1.0),
    test_t("(min(1,2) ? 1 + 3 : 1 + 4) == 4",1.0),
    test_t("(min(0,1) ? 1 + 3 : 1 + 4) == 5",1.0),
-   test_t("if (1 < 2) 3; == 3",1.0),
-   test_t("if (1 > 2) 3; == null",1.0),
-   test_t("if (1 < 2) 3; else 4; == 3",1.0),
-   test_t("if (1 > 2) 3; else 4; == 4",1.0),
+   test_t("(if (1 < 2) 3;) == 3",1.0),
+   test_t("(if (1 > 2) 3;) == null",1.0),
+   test_t("(if (1 < 2) 3; else 4;) == 3",1.0),
+   test_t("(if (1 > 2) 3; else 4;) == 4",1.0),
    test_t("if (1 < 2) 3; else {1+2; 4;} == 3",1.0),
    test_t("if (1 > 2) 3; else {1+2; 4;} == 4",1.0),
-   test_t("if (1 < 2) 3; else if (1 < 2) 4; == 3",1.0),
-   test_t("if (1 > 2) 3; else if (1 < 2) 4; == 4",1.0),
-   test_t("if (1 > 2) 3; else if (1 > 2) 4; == null",1.0),
+   test_t("(if (1 < 2) 3; else if (1 < 2) 4;) == 3",1.0),
+   test_t("(if (1 > 2) 3; else if (1 < 2) 4;) == 4",1.0),
+   test_t("(if (1 > 2) 3; else if (1 > 2) 4;) == null",1.0),
    test_t("if (1 < 2) 3; else if (1 < 2) {1+2; 4;} == 3",1.0),
    test_t("if (1 > 2) 3; else if (1 < 2) {1+2; 4;} == 4",1.0),
    test_t("if (1 > 2) 3; else if (1 > 2) {1+2; 4;} == null",1.0),
    test_t("if (1 < 2) { 1+2; 3;} == 3",1.0),
    test_t("if (1 > 2) { 1+2; 3;} == null",1.0),
-   test_t("if (1 < 2) { 1+2; 3;} else 4; == 3",1.0),
-   test_t("if (1 > 2) { 1+2; 3;} else 4; == 4",1.0),
+   test_t("(if (1 < 2) { 1+2; 3;} else 4;) == 3",1.0),
+   test_t("(if (1 > 2) { 1+2; 3;} else 4;) == 4",1.0),
    test_t("if (1 < 2) { 1+2; 3;} else {1+2; 4;} == 3",1.0),
    test_t("if (1 > 2) { 1+2; 3;} else {1+2; 4;} == 4",1.0),
-   test_t("if (1 < 2) { 1+2; 3;} else if (1 < 2) 4; == 3",1.0),
-   test_t("if (1 > 2) { 1+2; 3;} else if (1 < 2) 4; == 4",1.0),
-   test_t("if (1 > 2) { 1+2; 3;} else if (1 > 2) 4; == null",1.0),
+   test_t("(if (1 < 2) { 1+2; 3;} else if (1 < 2) 4;) == 3",1.0),
+   test_t("(if (1 > 2) { 1+2; 3;} else if (1 < 2) 4;) == 4",1.0),
+   test_t("(if (1 > 2) { 1+2; 3;} else if (1 > 2) 4;) == null",1.0),
    test_t("if (1 < 2) { 1+2; 3;} else if (1 < 2) {1+2; 4;} == 3",1.0),
    test_t("if (1 > 2) { 1+2; 3;} else if (1 < 2) {1+2; 4;} == 4",1.0),
    test_t("if (1 > 2) { 1+2; 3;} else if (1 > 2) {1+2; 4;} == null",1.0)
@@ -1885,18 +1885,18 @@ bool run_test01()
          test_xyzw<T>("(4 + [3 / (min(x,y) + z)])",T(5.0),T(7.0),T(9.0),T(0.0),T((4.0 + (3.0 / (std::min(5.0,7.0) + 9.0))))),
          test_xyzw<T>("(4 * [3 / (min(x,y) + z)])",T(5.0),T(7.0),T(9.0),T(0.0),T((4.0 * (3.0 / (std::min(5.0,7.0) + 9.0))))),
          test_xyzw<T>("(4 / [3 / (min(x,y) + z)])",T(5.0),T(7.0),T(9.0),T(0.0),T((4.0 / (3.0 / (std::min(5.0,7.0) + 9.0))))),
-         test_xyzw<T>("if (x < y) { z+2; z;} == z"                             ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
-         test_xyzw<T>("if (x > y) { z+2; z;} == null"                          ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
-         test_xyzw<T>("if (x < y) { z+2; z;} else w; == z"                     ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
-         test_xyzw<T>("if (x > y) { z+2; z;} else 1 + w; == (w + 1)"           ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
-         test_xyzw<T>("if (x < y) { z+2; z;} else {1+2; w;} == z"              ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
-         test_xyzw<T>("if (x > y) { z+2; z;} else {1+2; w;} == w"              ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
-         test_xyzw<T>("if (x < y) { z+2; z;} else if (x < y) w; == z"          ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
-         test_xyzw<T>("if (x > y) { z+2; z;} else if (x < y) 1 + w; == w + 1"  ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
-         test_xyzw<T>("if (x > y) { z+2; z;} else if (x > y) w; == null"       ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
-         test_xyzw<T>("if (x < y) { z+2; z;} else if (x < y) {w+2; w;} == z"   ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
-         test_xyzw<T>("if (x > y) { z+2; z;} else if (x < y) {w+2; w;} == w"   ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
-         test_xyzw<T>("if (x > y) { z+2; z;} else if (x > y) {w+2; w;} == null",T(1.0),T(2.0),T(3.0),T(4.0),T(1.0))
+         test_xyzw<T>("if (x < y) { z+2; z;} == z"                               ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
+         test_xyzw<T>("if (x > y) { z+2; z;} == null"                            ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
+         test_xyzw<T>("if (x < y) { z+2; z;} else w; == z"                       ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
+         test_xyzw<T>("if (x > y) { z+2; z;} else 1 + w; == (w + 1)"             ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
+         test_xyzw<T>("if (x < y) { z+2; z;} else {1+2; w;} == z"                ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
+         test_xyzw<T>("if (x > y) { z+2; z;} else {1+2; w;} == w"                ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
+         test_xyzw<T>("(if (x < y) { z+2; z;} else if (x < y) w;) == z"          ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
+         test_xyzw<T>("(if (x > y) { z+2; z;} else if (x < y) 1 + w;) == w + 1"  ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
+         test_xyzw<T>("(if (x > y) { z+2; z;} else if (x > y) w;) == null"       ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
+         test_xyzw<T>("if (x < y) { z+2; z;} else if (x < y) {w + 2; w;} == z"   ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
+         test_xyzw<T>("if (x > y) { z+2; z;} else if (x < y) {w + 2; w;} == w"   ,T(1.0),T(2.0),T(3.0),T(4.0),T(1.0)),
+         test_xyzw<T>("if (x > y) { z+2; z;} else if (x > y) {w + 2; w;} == null",T(1.0),T(2.0),T(3.0),T(4.0),T(1.0))
       };
 
       static const std::size_t test_list_size = sizeof(test_list) / sizeof(test_xyzw<T>);
@@ -5610,7 +5610,9 @@ inline std::size_t load_expressions(const std::string& file_name,
 template <typename T>
 bool run_test14()
 {
-   typedef exprtk::expression<T> expression_t;
+   typedef exprtk::expression<T>             expression_t;
+   typedef exprtk::parser<T>                 parser_t;
+   typedef typename parser_t::settings_store settings_t;
 
    T x = T(0);
    T y = T(0);
@@ -5658,7 +5660,19 @@ bool run_test14()
 
    exprtk::parser<T> parser;
 
+   static const std::size_t secondary_compile_options =
+      settings_t::e_replacer          +
+      settings_t::e_joiner            +
+      settings_t::e_numeric_check     +
+      settings_t::e_bracket_check     +
+      settings_t::e_sequence_check    +
+      settings_t::e_strength_reduction;
+
+   const settings_t settings(secondary_compile_options);
+   parser_t secondary_parser(settings);
+
    std::deque<std::string> expr_str_list;
+   std::deque<std::string> expr_noncomm_str_list;
 
    load_expressions("exprtk_functional_test.txt"     , expr_str_list);
    load_expressions("exprtk_functional_ext_test.txt" , expr_str_list);
@@ -5667,6 +5681,8 @@ bool run_test14()
    {
       return true;
    }
+
+   load_expressions("exprtk_noncommutative_test.txt" , expr_noncomm_str_list);
 
    std::deque<exprtk::expression<T> > expression_list;
    bool error_found = false;
@@ -5690,7 +5706,25 @@ bool run_test14()
             error_found = true;
          }
          else
+         {
             expression_list.push_back(current_expression);
+         }
+      }
+
+      for (std::size_t i = 0; i < expr_noncomm_str_list.size(); ++i)
+      {
+         exprtk::expression<T> current_expression;
+
+         current_expression.register_symbol_table(symbol_table);
+
+         if (!secondary_parser.compile(expr_noncomm_str_list[i],current_expression))
+         {
+            printf("run_test14() - Error: %s   Expression: %s [secondary parser]\n",
+                   secondary_parser.error().c_str(),
+                   expr_noncomm_str_list[i].c_str());
+
+            error_found = true;
+         }
       }
 
       if (error_found)
@@ -7920,17 +7954,17 @@ bool run_test18()
          "var v[5]; iota(v, 0, v[] -1,  0, -2); var r[5] := {  0, -2, -4, -6, -8}; sum(v == r) == v[]",
          "var v[5]; iota(v, 0, v[] -1, -1, -2); var r[5] := { -1, -3, -5, -7, -9}; sum(v == r) == v[]",
 
-         "var v[5]; iota(v, 0,1);  threshold_below(v,2, 0) var r[5] := { 0, 0, 2, 3, 4}; sum(v == r) == v[]",
-         "var v[5]; iota(v, 0,1);  threshold_above(v,2, 0) var r[5] := { 0, 1, 2, 0, 0}; sum(v == r) == v[]",
+         "var v[5]; iota(v, 0,1);  threshold_below(v,2, 0); var r[5] := { 0, 0, 2, 3, 4}; sum(v == r) == v[]",
+         "var v[5]; iota(v, 0,1);  threshold_above(v,2, 0); var r[5] := { 0, 1, 2, 0, 0}; sum(v == r) == v[]",
 
-         "var v[5]; iota(v, 0,1);  threshold_below(v,0,v[] - 1,2, 0) var r[5] := { 0, 0, 2, 3, 4}; sum(v == r) == v[]",
-         "var v[5]; iota(v, 0,1);  threshold_above(v,0,v[] - 1,2, 0) var r[5] := { 0, 1, 2, 0, 0}; sum(v == r) == v[]",
+         "var v[5]; iota(v, 0,1);  threshold_below(v,0,v[] - 1,2, 0); var r[5] := { 0, 0, 2, 3, 4}; sum(v == r) == v[]",
+         "var v[5]; iota(v, 0,1);  threshold_above(v,0,v[] - 1,2, 0); var r[5] := { 0, 1, 2, 0, 0}; sum(v == r) == v[]",
 
-         "var v[5]; iota(v, 1,1);  threshold_below(v,1,v[] - 1,2, 0) var r[5] := { 1, 2, 3, 4, 5}; sum(v == r) == v[]",
-         "var v[5]; iota(v, 1,1);  threshold_above(v,1,v[] - 1,2, 0) var r[5] := { 1, 2, 0, 0, 0}; sum(v == r) == v[]",
+         "var v[5]; iota(v, 1,1);  threshold_below(v,1,v[] - 1,2, 0); var r[5] := { 1, 2, 3, 4, 5}; sum(v == r) == v[]",
+         "var v[5]; iota(v, 1,1);  threshold_above(v,1,v[] - 1,2, 0); var r[5] := { 1, 2, 0, 0, 0}; sum(v == r) == v[]",
 
-         "var v[5]; iota(v, 0,1);  threshold_below(v,0,v[] - 2,2, 0) var r[5] := { 0, 0, 2, 3, 4}; sum(v == r) == v[]",
-         "var v[5]; iota(v, 0,1);  threshold_above(v,0,v[] - 2,2, 0) var r[5] := { 0, 1, 2, 0, 4}; sum(v == r) == v[]",
+         "var v[5]; iota(v, 0,1);  threshold_below(v,0,v[] - 2,2, 0); var r[5] := { 0, 0, 2, 3, 4}; sum(v == r) == v[]",
+         "var v[5]; iota(v, 0,1);  threshold_above(v,0,v[] - 2,2, 0); var r[5] := { 0, 1, 2, 0, 4}; sum(v == r) == v[]",
 
          " var a := 2; var x[3] := {1,2,3}; var y[3] := {1,2,3}; var r[3] := [0]; r := a * x + y; axpy(a,x,y); sum(y == r) == y[]",
          " var a := 2; var b := 3; var x[3] := {1,2,3}; var y[3] := {1,2,3}; var r[3] := [0]; r := a * x + b * y; axpby(a,x,b,y); sum(y == r) == y[]",
@@ -10815,7 +10849,7 @@ bool run_test21()
    {
       typedef typename parser_t::settings_store settings_t;
 
-      const std::string expressions[] =
+      const std::string invalid_expressions[] =
       {
          "var result := 0; if (true) { result := 2 } if (true) { result := 3 }; result",
          "var result := 0; if (true) { result := 2 }; if (true) { result := 3 } result",
@@ -10826,10 +10860,132 @@ bool run_test21()
          "var result := 0; var x := 1; if (x > 0) { result := 2 } if (x > 0) { result := 3 } result",
          "var result := 0; var x := 1; if (x > 0) { result := 2 } else if (x > 0) { result := 3 } result",
          "var result := 0; var x := 1; if (x > 0) result := 2 else if (x > 0) { result := 3 } result",
-         "var result := 0; var x := 1; if (x > 0) {result := 2 } else if (x > 0) result := 3 result"
+         "var result := 0; var x := 1; if (x > 0) {result := 2 } else if (x > 0) result := 3 result",
+         "var x := 2; var y := 0; x y                                                        ",
+         "var x := 2; x var y := 0;                                                          ",
+         "var x := 2; var y := 0; while (y < 3) { x := x * x; y += 1; } x                    ",
+         "var x := 2; var y := 0; for (var i := 0; i < 2; i += 1) { x := x * x; y += 1; } x  ",
+         "var x := 2; var y := 0; while (y < 3) { x := x * x; y += 1; } 1                    ",
+         "var x := 2; var y := 0; for (var i := 0; i < 2; i += 1) { x := x * x; y += 1; } 1  ",
+         "var x := 2; var y := 0; x while (y < 3) { x := x * x; y += 1; }                    ",
+         "var x := 2; var y := 0; x for (var i := 0; i < 2; i += 1) { x := x * x; y += 1; }  ",
+         "var x := 2; var y := 0; for (var i := 0; i < 2; i += 1) { x := x * x; y += 1; } (1 + x)",
+         "var x := 2; var y := 0; for (var i := 0; i < 2; i += 1) { x := x * x; y += 1; } (x + 1)",
+         "var x := 2; var y := 0; (1 + x) for (var i := 0; i < 2; i += 1) { x := x * x; y += 1; }",
+         "var x := 2; var y := 0; (x + 1) for (var i := 0; i < 2; i += 1) { x := x * x; y += 1; }",
+         "var x := 2; var y := 0; (x + y) for (var i := 0; i < 2; i += 1) { x := x * x; y += 1; }",
+         "'hello' 1",
+         "1 'hello'",
+         "'hel' + 'lo' 1",
+         "1 'hel' + 'lo'",
+         "1 2",
+         "a b",
+         "a b c",
+         "var x := 2; 1 2      ",
+         "var x := 2; 1 x      ",
+         "var x := 2; x 1      ",
+         "var x := 2; a 1      ",
+         "var x := 2; x a      ",
+         "var x := 2; x a b    ",
+         "var x := 2; x a b c  ",
+         "var x := 2; a x      ",
+         "var x := 2; a x b    ",
+         "var x := 2; a x b c  ",
+         "var x := 2; 'hello' 1",
+         "var x := 2; 1 'hello'",
+         "var x := 2; 'hello' x",
+         "var x := 2; x 'hello'",
+         "var x := 2; (x 1)                 ",
+         "var x := 2; (1 x)                 ",
+         "var x := 2; 2 + (x 1)             ",
+         "var x := 2; 2 + (1 x)             ",
+         "var x := 2; x + (x 1)             ",
+         "var x := 2; x + (1 x)             ",
+         "var x := 2; (x 1) + 2             ",
+         "var x := 2; (1 x) + 2             ",
+         "var x := 2; (x 1) + x             ",
+         "var x := 2; (1 x) + x             ",
+         "var x := 2; var y := 3; (x y)     ",
+         "var x := 2; var y := 3; (y x)     ",
+         "var x := 2; var y := 3; 2 + (x y) ",
+         "var x := 2; var y := 3; 2 + (y x) ",
+         "var x := 2; var y := 3; x + (x y) ",
+         "var x := 2; var y := 3; x + (y x) ",
+         "var x := 2; var y := 3; (x y) + 2 ",
+         "var x := 2; var y := 3; (y x) + 2 ",
+         "var x := 2; var y := 3; (x y) + x ",
+         "var x := 2; var y := 3; (y x) + x ",
+         "var x := 2; 2 + x 1               ",
+         "var x := 2; 2 + 1 x               ",
+         "var x := 2; x + x 1               ",
+         "var x := 2; x + 1 x               ",
+         "var x := 2; var y := 3; 2 + x y   ",
+         "var x := 2; var y := 3; 2 + y x   ",
+         "var x := 2; var y := 3; x + x y   ",
+         "var x := 2; var y := 3; x + y x   ",
+         "~{1; 2; 3} 1             ",
+         "1 ~{1; 2; 3}             ",
+         "var x := 2; x ~{x; 1; 2} ",
+         "var x := 2; 1 ~{x; 1; 2} ",
+         "var x := 2; ~{x; 1; 2} x ",
+         "var x := 2; ~{x; 1; 2} 1 ",
+         "~(1; 2; 3) 1             ",
+         "1 ~(1; 2; 3)             ",
+         "var x := 2; x ~(x; 1; 2) ",
+         "var x := 2; 1 ~(x; 1; 2) ",
+         "var x := 2; ~(x; 1; 2) x ",
+         "var x := 2; ~(x; 1; 2) 1 ",
+         "var x := 2; (x + 1) ~{x; 1; 2} ",
+         "var x := 2; (1 + x) ~{x; 1; 2} ",
+         "var x := 2; ~{x; 1; 2} (x + 1) ",
+         "var x := 2; ~{x; 1; 2} (1 + x) ",
+         "var x := 2; x + 1 ~{x; 1; 2} ",
+         "var x := 2; 1 + x ~{x; 1; 2} ",
+         "var x := 2; ~{x; 1; 2} x + 1 ",
+         "var x := 2; ~{x; 1; 2} 1 + x ",
+         "~(1, 2, 3) 1             ",
+         "1 ~(1, 2, 3)             ",
+         "var x := 2; x ~(x, 1, 2) ",
+         "var x := 2; 1 ~(x, 1, 2) ",
+         "var x := 2; ~(x, 1, 2) x ",
+         "var x := 2; ~(x, 1, 2) 1 ",
+         "var x := 2; 1 switch { case x > 1 : 1; case x < 3 : 2; default : 3; } ",
+         "var x := 2; x switch { case x > 1 : 1; case x < 3 : 2; default : 3; } ",
+         "var x := 2; switch { case x > 1 : 1; case x < 3 : 2; default : 3; } x ",
+         "var x := 2; 1 [*] { case x > 1 : 1; case x < 3 : 2; }                 ",
+         "var x := 2; x [*] { case x > 1 : 1; case x < 3 : 2; }                 ",
+         "var x := 2; [*] { case x > 1 : 1; case x < 3 : 2; } x                 ",
+         "var x := 2; (x + 1) switch { case x > 1 : 1; case x < 3 : 2; default : 3; } ",
+         "var x := 2; switch { case x > 1 : 1; case x < 3 : 2; default : 3; } (x + 1) ",
+         "var x := 2; (x + 1) [*] { case x > 1 : 1; case x < 3 : 2; }                 ",
+         "var x := 2; [*] { case x > 1 : 1; case x < 3 : 2; } (x + 1)                 ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { return [i] 1; }     ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { 1 return [i]; }     ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { return [i] i; }     ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { i return [i]; }     ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { return [i] 1 + i; } ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { 1 + i return [i]; } ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { return [i] i + 1; } ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { i + 1 return [i]; } ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { 1 if (i > 3) return [i]; }    ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { if (i > 3) return [i] 1; }    ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { x if (i > 3) return [i]; }    ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { if (i > 3) return [i] x; }    ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { x + 1 if (i > 3) return [i]; }",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { if (i > 3) return [i] x + 1; }",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { 1 + x if (i > 3) return [i]; }",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { if (i > 3) return [i] 1 + x; }",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { 1 for (var j := 0; j < 2; j += 1){} }     ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { for (var j := 0; j < 2; j += 1){} 1 }     ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { x for (var j := 0; j < 2; j += 1){} }     ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { for (var j := 0; j < 2; j += 1){} x }     ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { x + 1 for (var j := 0; j < 2; j += 1){} } ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { for (var j := 0; j < 2; j += 1){} x + 1 } ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { 1 + x for (var j := 0; j < 2; j += 1){} } ",
+         "var x := 2; for (var i := 0; i < 2; i += 1) { for (var j := 0; j < 2; j += 1){} 1 + x } "
       };
 
-      const std::size_t expressions_size = sizeof(expressions) / sizeof(std::string);
+      const std::size_t expressions_size = sizeof(invalid_expressions) / sizeof(std::string);
 
       static const std::size_t compile_options =
          settings_t::e_replacer          +
@@ -10842,12 +10998,23 @@ bool run_test21()
       const settings_t settings(compile_options);
       parser_t parser(settings);
 
+      T a = T(2222);
+      T b = T(3333);
+      T c = T(4444);
+
+      symbol_table_t symbol_table;
+      symbol_table.add_variable("a", a);
+      symbol_table.add_variable("b", b);
+      symbol_table.add_variable("c", c);
+
       bool error_found = false;
 
       for (std::size_t e = 0; e < expressions_size; ++e)
       {
-         const std::string& expression_string = expressions[e];
+         const std::string& expression_string = invalid_expressions[e];
+
          expression_t expression;
+         expression.register_symbol_table(symbol_table);
 
          if (parser.compile(expression_string,expression))
          {

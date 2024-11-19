@@ -2418,11 +2418,11 @@ parameters in the following sequence:
    (3) Scalar
    (4) Scalar
 
-Note16: The 'Z' or  no parameter option may not be used in conjunction
+Note16: The 'Z' or no parameter option may not be used in  conjunction
 with any other type option in a parameter sequence. When  incorporated
-in the parameter sequence list, the no parameter option indicates that
-the function may be invoked  without any parameters being passed.  For
-more information refer to the section: 'Zero Parameter Functions'
+in the parameter  sequence list, the  'No Parameter' option  indicates
+that the function may be invoked without any parameters being  passed.
+For more information refer to the section: 'Zero Parameter Functions'
 
 
 (4) igeneric_function II
@@ -2639,7 +2639,7 @@ are defined as follows:
 
 
 The parameter  sequence definitions  are identical  to the  previously
-define igeneric_function, with the  exception of the inclusion  of the
+defined igeneric_function, with the exception of the inclusion  of the
 return type - which can only be either a scalar T or a string S.
 
 
