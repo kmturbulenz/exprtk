@@ -5608,6 +5608,12 @@ inline std::size_t load_expressions(const std::string& file_name,
 }
 
 template <typename T>
+inline T isnan(const T t)
+{
+   return std::isnan(t) ? T(1) : T(0);
+}
+
+template <typename T>
 bool run_test14()
 {
    typedef exprtk::expression<T>             expression_t;
@@ -5652,6 +5658,7 @@ bool run_test14()
    symbol_table.add_function("poly10", poly10);
    symbol_table.add_function("poly11", poly11);
    symbol_table.add_function("poly12", poly12);
+   symbol_table.add_function("isnan" , isnan );
 
    symbol_table.add_package(vector_package);
 
@@ -12792,6 +12799,178 @@ bool run_test22()
             result = false;
             continue;
          }
+      }
+   }
+
+   {
+      typedef std::pair<std::string,std::size_t> exprpack_t;
+
+      const exprpack_t expression_list[] =
+      {
+         exprpack_t("var x := 1;", 1 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 2;", 2 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 2; var z := 2;", 3 * sizeof(T) ),
+
+         exprpack_t("const var x := 1;", 1 * sizeof(T) ),
+         exprpack_t("const var x := 1; const var y := 2;", 2 * sizeof(T) ),
+         exprpack_t("const var x := 1; const var y := 2; const var z := 2;", 3 * sizeof(T) ),
+
+         exprpack_t("const var x := 1;", 1 * sizeof(T) ),
+         exprpack_t("const var x := 1; var y := 2;", 2 * sizeof(T) ),
+         exprpack_t("const var x := 1; var y := 2; const var z := 2;", 3 * sizeof(T) ),
+
+         exprpack_t("var x := 1;", 1 * sizeof(T) ),
+         exprpack_t("var x := 1; const var y := 2;", 2 * sizeof(T) ),
+         exprpack_t("var x := 1; const var y := 2; var z := 2;", 3 * sizeof(T) ),
+
+         exprpack_t("var x;", 1 * sizeof(T) ),
+         exprpack_t("var x; var y;", 2 * sizeof(T) ),
+         exprpack_t("var x; var y; var z;", 3 * sizeof(T) ),
+
+         exprpack_t("var v[10];", 10 * sizeof(T) ),
+         exprpack_t("var v[10]; var w[20];", 30 * sizeof(T) ),
+         exprpack_t("var v[10]; var w[20]; var u[20];", 50 * sizeof(T) ),
+
+         exprpack_t("var x := 1; var v[10];", 11 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 2; var v[10];", 12 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 2; var z := 2; var v[10];", 13 * sizeof(T) ),
+
+         exprpack_t("var x := 1; if (x > 2) { var a := x + 1; };", 2 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 2; if (x > 2) { var a := x + 1; };", 3 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 2; var z := 2; if (x > 2) { var a := x + 1; };", 4 * sizeof(T) ),
+
+         exprpack_t("var x := 1; if (x > 2) { var a[10] := [x + 1]; };", 11 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 2; if (x > 2) { var a[10] := [x + 1]; };", 12 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 2; var z := 2; if (x > 2) { var a[10] := [x + 1]; };", 13 * sizeof(T) ),
+
+         exprpack_t("var x := 1; if (x > 2) { var a := x + 1; } else { var a := x + 2; };", 2 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 2; if (x > 2) { var a := x + 1; } else { var a := x + 2; };", 3 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 2; var z := 2; if (x > 2) { var a := x + 1; } else { var a := x + 2; };", 4 * sizeof(T) ),
+
+         exprpack_t("var x := 1; if (x > 2) { var a := x + 1; } else { var a := x + 2; var b := a; };", 3 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 2; if (x > 2) { var a := x + 1; } else { var a := x + 2; var b := a; };", 4 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 2; var z := 2; if (x > 2) { var a := x + 1; } else { var a := x + 2; var b := a; };", 5 * sizeof(T) ),
+
+         exprpack_t("var v[10]; v[7] + 1;", 10 * sizeof(T) ),
+      };
+
+      const std::size_t expression_list_size = sizeof(expression_list) / sizeof(exprpack_t);
+
+      for (std::size_t i = 0; i < expression_list_size; ++i)
+      {
+         const exprpack_t& exprpack = expression_list[i];
+
+         expression_t expression;
+         parser_t     parser;
+
+         if (!parser.compile(exprpack.first, expression))
+         {
+            printf("run_test22() - Error: Max expression/vector size check. Diag: %s Expression: %s [01]\n",
+                   parser.error().c_str(),
+                   exprpack.first.c_str());
+
+            result = false;
+            continue;
+         }
+
+         if (parser.total_local_symbol_size_bytes() != exprpack.second)
+         {
+            printf("run_test22() - Error: Mismatch in expected expression size. Expected size: %d instead got: %d "
+                   "Expression: %s [02]\n",
+                   static_cast<int>(exprpack.second),
+                   static_cast<int>(parser.total_local_symbol_size_bytes()),
+                   exprpack.first.c_str());
+
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   {
+      typedef std::pair<std::string,std::size_t> exprpack_t;
+
+      const exprpack_t expression_list[] =
+      {
+         exprpack_t("var x := 1;", 0 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 1;", 1 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 1; var z := 1;", 2 * sizeof(T) ),
+
+         exprpack_t("var x;", 0 * sizeof(T) ),
+         exprpack_t("var x; var y;", 1 * sizeof(T) ),
+         exprpack_t("var x; var y; var z;", 2 * sizeof(T) ),
+
+         exprpack_t("var x{};", 0 * sizeof(T) ),
+         exprpack_t("var x{}; var y{};", 1 * sizeof(T) ),
+         exprpack_t("var x{}; var y{}; var z{};", 2 * sizeof(T) ),
+
+         exprpack_t("const var x := 1;", 0 * sizeof(T) ),
+         exprpack_t("const var x := 1; const var y := 1;", 1 * sizeof(T) ),
+         exprpack_t("const var x := 1; const var y := 1; const var z := 1;", 2 * sizeof(T) ),
+
+         exprpack_t("const var x := 1;", 0 * sizeof(T) ),
+         exprpack_t("const var x := 1; var y := 1;", 1 * sizeof(T) ),
+         exprpack_t("const var x := 1; var y := 1; const var z := 1;", 2 * sizeof(T) ),
+
+         exprpack_t("var x := 1;", 0 * sizeof(T) ),
+         exprpack_t("var x := 1; const var y := 1;", 1 * sizeof(T) ),
+         exprpack_t("var x := 1; const var y := 1; var z := 1;", 2 * sizeof(T) ),
+
+         exprpack_t("var v[10];", 9 * sizeof(T) ),
+         exprpack_t("var x := 1; var v[10];", 10 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 2; var v[10];", 11 * sizeof(T) ),
+         exprpack_t("var x := 1; var y := 2; var z := 2; var v[10];", 12 * sizeof(T) ),
+      };
+
+      const std::size_t expression_list_size = sizeof(expression_list) / sizeof(exprpack_t);
+
+      for (std::size_t i = 0; i < expression_list_size; ++i)
+      {
+         const exprpack_t& exprpack = expression_list[i];
+
+         expression_t expression;
+         parser_t     parser;
+
+         parser.settings().set_max_total_local_symbol_size_bytes(exprpack.second);
+         parser.settings().set_max_local_vector_size(exprpack.second / sizeof(T));
+
+         if (parser.compile(exprpack.first, expression))
+         {
+            printf("run_test22() - Error: Expected the expression to fail compilation due to size check. Expression: %s [03]\n",
+                   exprpack.first.c_str());
+
+            result = false;
+            continue;
+         }
+
+         if (parser.total_local_symbol_size_bytes() != 0)
+         {
+            printf("run_test22() - Error: Expected zero size expression, instead got: %d "
+                   "Expression: %s [02]\n",
+                   static_cast<int>(parser.total_local_symbol_size_bytes()),
+                   exprpack.first.c_str());
+
+            result = false;
+            continue;
+         }
+      }
+   }
+
+   {
+      expression_t expression;
+      parser_t     parser;
+
+      parser.settings().set_max_total_local_symbol_size_bytes(100);
+      parser.settings().set_max_local_vector_size(200);
+
+      const std::string expression_str = "var x := 1;";
+
+      if (parser.compile(expression_str, expression))
+      {
+         printf("run_test22() - Error: Expected the expression to fail compilation due to size check. Expression: %s [04]\n",
+                expression_str.c_str());
+
+         result = false;
       }
    }
 

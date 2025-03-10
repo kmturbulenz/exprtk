@@ -89,7 +89,7 @@ void vector_randu()
    const std::string vecrandu_program =
       " var noise[6] := [0];                          "
       "                                               "
-      " if (randu(noise,0,5) == false)                "
+      " if (randu(noise, 0, 5) == false)              "
       " {                                             "
       "    println('Failed to generate noise');       "
       "    return [false];                            "

@@ -24,7 +24,7 @@
 
 
 template <typename T>
-void compute_implied_volatility()
+void compute_european_option_implied_volatility()
 {
    typedef exprtk::symbol_table<T>         symbol_table_t;
    typedef exprtk::expression<T>           expression_t;
@@ -32,7 +32,7 @@ void compute_implied_volatility()
    typedef exprtk::function_compositor<T>  compositor_t;
    typedef typename compositor_t::function function_t;
 
-   const std::string implied_volatility_program =
+   const std::string option_implied_volatility_program =
       " const var epsilon   := 0.0000001;                               "
       " const var max_iters := 1000;                                    "
       "                                                                 "
@@ -55,16 +55,24 @@ void compute_implied_volatility()
       "       break;                                                    "
       "    };                                                           "
       "                                                                 "
-      "    v -= price_diff / vega(s, k, r, t, v);                       "
+      "    var vega := bsm_vega(s, k, r, t, v);                         "
+      "                                                                 "
+      "    if (vega < epsilon)                                          "
+      "    {                                                            "
+      "       itr := max_iters + 1;                                     "
+      "       break;                                                    "
+      "    };                                                           "
+      "                                                                 "
+      "    v -= price_diff / vega;                                      "
       " };                                                              "
       "                                                                 "
       " itr <= max_iters ? v : null;                                    ";
 
-   T s            = T( 100.00); // Spot / Stock / Underlying / Base price
-   T k            = T( 110.00); // Strike price
-   T t            = T(   2.22); // Years to maturity
-   T r            = T(   0.05); // Risk free rate
-   T target_price = T(   0.00);
+   T s            = T(100.00); // Spot / Stock / Underlying / Base price
+   T k            = T(110.00); // Strike price
+   T t            = T(  2.22); // Years to maturity
+   T r            = T(  0.05); // Risk free rate
+   T target_price = T(  0.00);
 
    std::string callput_flag;
 
@@ -100,7 +108,7 @@ void compute_implied_volatility()
       ));
 
    compositor.add(
-      function_t("vega")
+      function_t("bsm_vega")
       .vars("s", "k", "r", "t", "v")
       .expression
       (
@@ -112,33 +120,33 @@ void compute_implied_volatility()
    expression.register_symbol_table(symbol_table);
 
    parser_t parser;
-   parser.compile(implied_volatility_program,expression);
+   parser.compile(option_implied_volatility_program, expression);
 
    {
       callput_flag = "call";
       target_price = T(18.339502);
 
-      const T implied_vol = expression.value();
+      const T option_implied_vol = expression.value();
 
       printf("Call Option(s: %5.3f, k: %5.3f, t: %5.3f, r: %5.3f) "
              "@ $%8.6f Implied volatility = %10.8f\n",
-             s, k, t, r, target_price, implied_vol);
+             s, k, t, r, target_price, option_implied_vol);
    }
 
    {
       callput_flag = "put";
       target_price = T(16.782764);
 
-      const T implied_vol = expression.value();
+      const T option_implied_vol = expression.value();
 
       printf("Put  Option(s: %5.3f, k: %5.3f, t: %5.3f, r: %5.3f) "
              "@ $%8.6f Implied volatility = %10.8f\n",
-             s, k, t, r, target_price, implied_vol);
+             s, k, t, r, target_price, option_implied_vol);
    }
 }
 
 int main()
 {
-   compute_implied_volatility<double>();
+   compute_european_option_implied_volatility<double>();
    return 0;
 }
