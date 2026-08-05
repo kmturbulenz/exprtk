@@ -32,3 +32,4 @@ on this repo for preserving the original download.
 | exprtk.zip     | 2024-10-28   | `aae8e63196acd919269c144fe77628f3481200c11bae642719cf5e3f165ed137` |
 | exprtk.zip     | 2024-11-19   | `369efd24471babde858090cbaf649fca1e89441e41d61e1d10fd970895390077` |
 | exprtk.zip     | 2025-03-10   | `5294e8a4fb1dde6d3a13d447ff0e87ef6eb13f96cd3837b3cca7fdd66592d9c9` |
+| exprtk.zip     | 2026-08-05   | `5dcba9fd23bf1ec4108bb271516f57bbdc1ab1cff4f675aec828f004c1083beb` |
